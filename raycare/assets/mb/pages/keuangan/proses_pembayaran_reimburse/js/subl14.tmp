@@ -1,0 +1,34 @@
+mb.app.proses_batch = mb.app.proses_batch || {};
+(function(o){
+
+    var 
+        baseAppUrl              = '',
+        $table1 = $('#table_proses_batch');
+
+    var initForm = function(){
+
+        $('select#user_id').select2();
+    }
+
+    var handleDataTableInvoice = function() 
+    {
+        
+    }
+
+    
+   
+
+    // mb.app.home.table properties
+    o.init = function(){
+        baseAppUrl = mb.baseUrl() + 'keuangan/proses_pembayaran_reimburse/';
+        initForm();
+  
+
+    };
+ }(mb.app.proses_batch));
+
+
+// initialize  mb.app.home.table
+$(function(){
+    mb.app.proses_batch.init();
+});

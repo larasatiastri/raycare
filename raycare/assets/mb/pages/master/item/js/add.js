@@ -1,0 +1,1240 @@
+mb.app.item = mb.app.item || {};
+mb.app.item.add = mb.app.item.add || {};
+
+// mb.app.item.add namespace
+(function(o){
+
+    var
+        baseAppUrl                 = '', 
+        $form                      = $('#form_add_item')
+        $tableSatuan               = $('#table_satuan', $form),
+        $tableHargaItemSatuan      = $('#table_satuan_harga'),
+        $tableHargaItemSatuanModal = $('#table_harga_satuan_modal'),
+        $tableIdentitasDetail            = $('#table_identitas_detail', $form),
+        theadFilterTemplate        = $('#thead-filter-template').text(),
+        jml                        = 1,
+        x                          = 0,
+        y                          = 0,
+        months      = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'],
+        date      = new Date(),
+        day       = date.getDate(),
+        month     = date.getMonth(),
+        yy        = date.getYear(),
+        year      = (yy < 1000) ? yy + 1900 : yy,
+        curr_hour = date.getHours(),
+        curr_min  = date.getMinutes(),
+        curr_sec  = date.getSeconds();
+        tanggal   = year +':' + months[month] + ':' + day,
+
+        tplSatuanRow               = $.validator.format( $('#tpl_satuan_row').text()),
+        satuanCounter              = 1,
+        
+        tplIdentitasRow            = $.validator.format( $('#tpl_identitas_row').text()),
+        itemCounter                = 1,
+        
+        tplFormGambar              = '<li class="fieldset">' + $('#tpl-form-gambar', $form).val() + '<hr></li>',
+        regExpTplGambar            = new RegExp('gambar[0]', 'g'),   // 'g' perform global, case-insensitive
+        gambarCounter              = 1,
+        
+        formsGambar = {
+                        'gambar' : 
+                        {            
+                            section  : $('#section-gambar', $form),
+                            template : $.validator.format( tplFormGambar.replace(regExpTplGambar, '_id_{0}') ), //ubah ke format template jquery validator
+                            counter  : function(){ gambarCounter++; return gambarCounter-1; }
+                        }   
+                    },
+
+        tplFormIdentitas = '<li class="fieldset">' + $('#tpl-form-identitas', $form).val() + '<hr></li>',
+        regExpTplIdentitas   = new RegExp('_ID_0', 'g'),   // 'g' perform global, case-insensitive
+        identitasCounter     = 1,
+        
+        formsIdentitas = {
+                        'identitas' : 
+                        {            
+                            section  : $('#section-identitas', $form),
+                            template : $.validator.format( tplFormIdentitas.replace(regExpTplIdentitas, '_id_{0}') ), //ubah ke format template jquery validator
+                            counterIndetitas  : function(){ identitasCounter++; return identitasCounter-1; }
+                        }   
+                    }
+        ;
+
+    var initForm = function(){
+        
+        $.each(formsGambar, function(idx, form){
+            // handle button add
+            $('a#tambah_gambar', form.section).on('click', function(){
+                
+                addFieldsetGambar(form);
+
+            });
+            // beri satu fieldset kosong
+            addFieldsetGambar(form);
+
+        });
+
+        $.each(formsIdentitas, function(idx, form){
+
+            // handle button add
+            $('a#tambah_identitas',form.section).on('click', function(){
+               
+                addFieldsetIdentitas(form);
+                jml+=1;
+
+            });
+
+            // beri satu fieldset kosong
+
+            addFieldsetIdentitas(form);
+        
+        });
+
+        addItemRow();
+        // addIdentitasRow();
+
+        $('#operator', $('tbody tr#item_row_1'), $tableSatuan).text("");
+        $('tbody tr#item_row_1', $tableSatuan).hide();
+        // handleRadioPrimary();
+    };
+
+    var addFieldsetGambar = function(form)
+    {
+
+        var 
+            $section           = form.section,
+            $fieldsetContainer = $('ul', $section),
+            counter            = form.counter(),
+            $newFieldset       = $(form.template(counter)).appendTo($fieldsetContainer);
+
+        // $('select[name$="[payment_type]"]', $newFieldset).on('change', function(){
+        //     handleSelectSection(this.value, $newFieldset);
+        // });
+        $('a.del-gambar', $newFieldset).on('click', function(){
+            handleDeleteFieldsetGambar($(this).parents('.fieldset').eq(0));
+        });
+
+        $('input#radio_primary_gambar_id_1').prop('checked', true);
+        $('input[name$="[is_primary_gambar]"]').val('');
+        $('input#primary_gambar_id_1').val(1);
+        
+        $('input[name="gambar_is_primary"]', $newFieldset).on('click', function()
+        {
+            $('input[name$="[is_primary_gambar]"]').val('');
+            $('input[name$="[is_primary_gambar]"]', $newFieldset).val(1);
+        });
+
+        //jelasin warna hr pemisah antar fieldset
+        $('hr', $newFieldset).css('border-color', 'rgb(228, 228, 228)');
+
+        handleUploadify(counter);
+
+    };
+
+    var addFieldsetIdentitas = function(form){
+        var 
+            $section           = form.section,
+            $fieldsetContainer = $('ul', $section),
+            counter            = form.counterIndetitas(),
+            $newFieldset       = $(form.template(counter)).appendTo($fieldsetContainer),
+            result=0,
+            result2=0,
+            result3=0;
+            
+            // alert(counter);
+      //s  handleDatePicker();
+        $('select[name$="[identitas_type]"]', $newFieldset).on('change', function(){
+           
+            handleSelectSection(this.value, $newFieldset);
+        });
+        
+        $('a.del-identitas', $newFieldset).on('click', function(){
+            
+            handleDeleteFieldsetIdentitas($(this).parents('.fieldset').eq(0));
+        });
+        
+        // var tplIdentitasRow            = $.validator.format( $('#tpl_identitas_row').text()),
+        
+        // console.log(tplIdentitasRow);
+        // addIdentitasRow($('table#table_identitas_detail_' + counter));
+        // addIdentitasRow($('table[name$="[table_identitas_detail]"]', $newFieldset),counter);
+        addIdentitasRow($('table#table_identitas_detail_' + counter), counter);
+
+
+        $('a[name$="[addrow]"]', $newFieldset).on('click', function(){
+            
+         // addIdentitasRow($newFieldset);
+         // addIdentitasRow($('table#table_identitas_detail_' + counter));
+         // addIdentitasRow($('table[name$="[table_identitas_detail]"]', $newFieldset),counter);
+        addIdentitasRow($('table#table_identitas_detail_' + counter), counter);
+
+
+           // handleSelectSection(this.value, $newFieldset);
+        });
+         
+         // addIdentitasRow($newFieldset);
+         // addIdentitasRow($('table[name$="[table_identitas_detail]"]', $newFieldset),counter);
+         
+
+        //jelasin warna hr pemisah antar fieldset
+
+        $('input[name$="[identitas_row]"]', $newFieldset).val(counter);
+        $('hr', $newFieldset).css('border-color', 'silver');
+    };
+
+    var addItemRow = function(){
+        // $('#operator', $('tbody tr#item_row_1'), $tableSatuan).text("");
+        var numRow = $('tbody tr', $tableSatuan).length;
+        
+        console.log('Num Row Satuan ' + numRow);
+        if( numRow > 0 && ! isValidLastRow() ) return;
+        // cek baris terakhir bener apa nggak?? ga ada yg tau
+        //if( numRow > 0 && ! isValidLastRow() ) return;
+        console.log('satuan row = ' + tplSatuanRow);
+        var 
+            $rowContainer       = $('tbody', $tableSatuan),
+            $newItemRow         = $(tplSatuanRow(satuanCounter++)).appendTo( $rowContainer ),
+            $btnSearchItem      = $('.search-item', $newItemRow),
+            $operator           = $('#operator', $newItemRow).text("="),
+            $inputJumlah        = $('input#satuan_jumlah_1');
+            $inputJumlahSaatIni = $('input.jumlah', $newItemRow);
+            $inputSatuan        = $('input#satuan_satuan_1');
+            $inputSatuanSaatIni = $('input.satuan', $newItemRow);
+            $inputActionSatuan        = $('input.action_satuan', $newItemRow);
+            $inputActionJumlah        = $('input.action_jumlah', $newItemRow);
+            $inputSatuanId        = $('input.satuan_id', $newItemRow);
+        // handle delete btn
+        console.log($newItemRow);
+
+        handleBtnDelete( $('a.del-this', $newItemRow) );
+        handleRadioPrimary( $('.is_primary', $newItemRow), $inputSatuanId );
+
+        handleUpdateItemSatuan();
+        handleJumlah($inputJumlah);
+        // handleJumlahOnChange($inputJumlahOnchange);
+        handleSatuan($inputSatuan);
+        // handleSatuanOnChange($inputSatuanSaatIni, $inputJumlahSaatIni, $inputActionSatuan, $inputActionJumlah, $inputSatuanId);
+        
+    };
+
+    var addIdentitasRow = function(tabel, counter){
+        var numRow = $('tbody tr', $tableIdentitasDetail).length;
+              // itemCounter             = 1;
+        // alert(itemCounter);
+        
+
+        // var tplIdentitasRow            = $.validator.format( $('#tpl_identitas_row').text());
+        console.log('identitas row = ' + tplIdentitasRow);
+        var 
+            $rowContainer   = $('tbody', tabel),
+            $newItemRow     = $(tplIdentitasRow(itemCounter++)).appendTo( $rowContainer ),
+            $btnDelete      = $('.del-detail', $newItemRow);
+    
+      //   console.log($newItemRow);
+      // //  handleBtnSearchItem($btnSearchItem);
+        // $('.table_detail', tabel).attr('id', 'item_row_' + itemCounter);
+        $('.t1', $newItemRow).attr('id', 'identitas_text_detail_'+itemCounter);
+        $('.t2', $newItemRow).attr('id', 'identitas_text_detail_'+itemCounter);
+        $('.t1', $newItemRow).attr('name', 'identitas_'+counter+'['+itemCounter+'][text_detail]');
+        $('.t2', $newItemRow).attr('name', 'identitas_'+counter+'['+itemCounter+'][isi_detail]');
+
+        
+        
+        // itemCounter++;
+        handleBtnDeleteDetail($btnDelete,tabel,counter);
+      //   $("#counter").val(counter);
+       // handleCheck($checkMultiply);
+        // itemCounter++;
+    };
+
+    var handleDeleteFieldsetGambar = function($fieldset)
+    {        
+        var 
+            $parentUl     = $fieldset.parent(),
+            fieldsetCount = $('.fieldset', $parentUl).length,
+            hasId         = false,  //punya id tidak, jika tidak bearti data baru
+            hasDefault    = 0,      //ada tidaknya fieldset yang di set sebagai default, diset ke 0 dulu
+            $inputDefault = $('input:hidden[name$="[is_default]"]', $fieldset), 
+            isDefault     = $inputDefault.val() == 1
+            ; 
+
+        if (fieldsetCount<=1) return; //jika fieldset cuma tinggal atu lagi, jgn dihapus.
+
+        $fieldset.remove();
+    };
+
+    var handleDeleteFieldsetIdentitas = function($fieldset)
+    {        
+        var 
+            $parentUl     = $fieldset.parent(),
+            fieldsetCount = $('.fieldset', $parentUl).length,
+            hasId         = false,  //punya id tidak, jika tidak bearti data baru
+            hasDefault    = 0,      //ada tidaknya fieldset yang di set sebagai default, diset ke 0 dulu
+            $inputDefault = $('input:hidden[name$="[is_default]"]', $fieldset), 
+            isDefault     = $inputDefault.val() == 1
+            ; 
+
+        if (fieldsetCount<=1) return; //jika fieldset cuma tinggal atu lagi, jgn dihapus.
+
+        $fieldset.remove();
+    };
+
+    var handleBtnDeleteDetail = function($btn, $tableItem)
+    {
+        var 
+            rowId    = $btn.closest('tr').prop('id'),
+            $row     = $('#'+rowId, $tableItem);
+
+        $btn.on('click', function(e){
+        // alert();
+            $row.remove();
+            if($('tbody>tr', $tableItem).length == 0){
+                addItemRow();
+            }
+            e.preventDefault();
+        });
+    };
+
+    var handleSelectSection = function(value,$fieldset)
+    {
+        if(value == 1 || value==2)
+        {
+            $('div#section_1', $fieldset).show();
+            $('div#section_2', $fieldset).hide();
+            $('div#section_3', $fieldset).hide();
+        }
+        if(value == 4 || value==5 || value==6 || value==7)
+        {
+            $('div#section_1', $fieldset).hide();
+            $('div#section_2', $fieldset).show();
+            $('div#section_3', $fieldset).hide();
+            
+        }
+        if(value == 3)
+        {
+            $('div#section_3', $fieldset).hide();
+            $('div#section_2', $fieldset).hide();
+            $('div#section_1', $fieldset).hide();
+            
+        }
+    }
+
+    var handleModalHarga = function(){
+        $('a#modal_ok', $form).click(function() {
+        
+            $form_add_item = $('#form_add_item');
+
+            $.ajax({
+                type     : 'POST',
+                url      : baseAppUrl + 'save_satuan_harga',
+                data     : $form_add_item.serialize(),
+                dataType : 'json',
+                beforeSend : function(){
+                    Metronic.blockUI({boxed: true, target: '#popup_modal', overlayColor: 'none', animate: true });
+                },
+                success  : function( results ) {
+                    var item_id = $('input#item_id').val();
+                    $tableHargaItemSatuan.api().ajax.url(baseAppUrl + 'listing_harga_item_satuan/' + item_id).load();
+                    // $tableHargaItemSatuan.api().ajax.url(baseAppUrl + 'listing_harga_item_satuan/51').load();
+                    $tableHargaItemSatuanModal.api().ajax.url(baseAppUrl + 'listing_harga_item_satuan_modal_by_tanggal/' + $('input#item_id').val() + '/' + tanggal).load();
+                    $('input#tanggal').val("");
+                    $('#closeModal').click();              
+                },
+                complete : function(){
+                    Metronic.unblockUI('#popup_modal');
+                }
+            });
+        });
+    }
+    var handleDeleteRow = function(){
+        $('a#delete_row_satuan', $form).click(function() {
+            bootbox.confirm('Apakah anda yakin akan menghapus satuan item ini?', function(result){
+                if (result==true) {
+                    $('tbody tr', $tableSatuan).remove();
+                    satuanCounter             = 1;
+
+                    $.ajax({
+                        type     : 'POST',
+                        url      : baseAppUrl + 'delete_satuan',
+                        data     : {item_id : $('input#item_id').val()},
+                        dataType : 'json',
+                        success  : function( results ) {
+                            console.log('delete satuan item sukses');
+                            
+                            
+                                $('input#parent_id').val("");
+                                addItemRow();
+                                // addIdentitasRow();
+
+                                $('#operator', $('tbody tr#item_row_1'), $tableSatuan).text("");
+                                $('tbody tr#item_row_1', $tableSatuan).hide();
+
+                                $inputTambahRow = $('input#tambah_row');
+
+                                $inputTambahRow.val('row_deleted');
+
+                                $tableHargaItemSatuan.api().ajax.url(baseAppUrl + 'listing_harga_item_satuan/' + $('input#item_id').val()).load();
+                                $tableHargaItemSatuanModal.api().ajax.url(baseAppUrl + 'listing_harga_item_satuan_modal_by_tanggal/' + $('input#item_id').val() + '/' + tanggal).load();
+                        }
+                    });
+
+
+                }
+            });
+            
+        });
+    }
+
+    var handleTambahRow = function(){
+        $('a#tambah_row_satuan', $form).click(function() {
+
+            $inputTambahRow = $('input#tambah_row');
+            // $('#operator', $('tbody tr#item_row_1'), $tableSatuan).text("");
+            if ($inputTambahRow.val() == 'save_item') {
+                // alert('save item');
+                //$('#save', $form).click();
+
+                // Show First Row
+                $('tbody tr#item_row_1', $tableSatuan).show();
+                CounterJumlahSebelumnya = satuanCounter-2;
+                CounterJumlahSelanjutnya = satuanCounter-1;
+                $inputJumlahSebelumnya = $('input#satuan_jumlah_'+CounterJumlahSebelumnya);
+                $labelJumlahSelanjutnya = $('label#jumlah_'+CounterJumlahSelanjutnya);
+
+                $inputSatuanSebelumnya = $('input#satuan_satuan_'+CounterJumlahSebelumnya);
+                $labelSatuanSelanjutnya = $('label#satuan_'+CounterJumlahSelanjutnya);
+
+                $labelJumlahSelanjutnya.text();
+                $labelSatuanSelanjutnya.text($inputSatuanSebelumnya.val());
+                
+
+                //save Item
+                $kategori = $('#kategori').val();
+                $tipe_akun = $('input#tipe_akun').val();
+                $sub_kategori = $('#sub_kategori').val();
+                $nama = $('#nama').val();
+                $keterangan = $('#keterangan').val();
+
+                // alert('kategori : ' + $kategori + ' tipe_akun : ' + $tipe_akun + ' sub_kategori : ' + $sub_kategori +
+                //     ' nama : ' + $nama + ' discontinue : ' + $discontinue + ' keterangan : ' + $keterangan
+                //      );
+                
+
+               
+                $.ajax({
+                    type     : 'POST',
+                    url      : baseAppUrl + 'save_item',
+                    data     : {command : 'add', kategori : $kategori, tipe_akun : $tipe_akun, sub_kategori : $sub_kategori, nama : $nama, keterangan : $keterangan},
+                    dataType : 'json',
+                    success  : function( results ) {
+                        console.log('input item sukses');
+                        
+                        
+                            $('input#item_id').val(results);
+                        
+                    }
+                });
+
+                $inputTambahRow.val('add_parent');
+            }else if ($inputTambahRow.val() == 'add_parent'){
+                var item_id = $('input#item_id').val();
+
+                addItemRow();
+                CounterJumlahSebelumnya = satuanCounter-2;
+                CounterJumlahSelanjutnya = satuanCounter-1;
+                $inputJumlahSebelumnya = $('input#satuan_jumlah_'+CounterJumlahSebelumnya);
+                $labelJumlahSelanjutnya = $('label#jumlah_'+CounterJumlahSelanjutnya);
+
+                $inputSatuanIdSebelumnya = $('input#satuan_id_'+CounterJumlahSebelumnya);
+                $inputSatuanSebelumnya = $('input#satuan_satuan_'+CounterJumlahSebelumnya);
+                $labelSatuanSelanjutnya = $('label#satuan_'+CounterJumlahSelanjutnya);
+
+                $labelJumlahSelanjutnya.text(1);
+                $labelSatuanSelanjutnya.text($inputSatuanSebelumnya.val());
+
+                // save satuan row pertama  
+                // $.ajax({
+                //     type     : 'POST',
+                //     url      : baseAppUrl + 'save_satuan',
+                //     data     : {command: 'add_parent' , item_id : $('input#item_id').val(), jumlah : $inputJumlahSebelumnya.val(), satuan: $inputSatuanSebelumnya.val()},
+                //     dataType : 'json',
+                //     success  : function( results ) {
+                //         console.log('input satuan sukses');
+                //          $('input#parent_id').val(results);
+                //          $inputSatuanIdSebelumnya.val(results);
+                //     }
+                // });    
+                
+                // $tableHargaItemSatuan.api().ajax.url(baseAppUrl + 'listing_harga_item_satuan/' + item_id).load();
+                // $tableHargaItemSatuanModal.api().ajax.url(baseAppUrl + 'listing_harga_item_satuan_modal/' + item_id).load();
+                $inputTambahRow.val('add_child');
+            }else if ($inputTambahRow.val() == 'add_child'){
+                // alert('add child');add_parent
+                var item_id = $('input#item_id').val();
+                
+                addItemRow();
+                CounterJumlahSebelumnya = satuanCounter-2;
+                CounterJumlahSelanjutnya = satuanCounter-1;
+                $inputJumlahSebelumnya = $('input#satuan_jumlah_'+CounterJumlahSebelumnya);
+                $labelJumlahSelanjutnya = $('label#jumlah_'+CounterJumlahSelanjutnya);
+
+                $inputSatuanIdSebelumnya = $('input#satuan_id_'+CounterJumlahSebelumnya);
+                $inputSatuanSebelumnya = $('input#satuan_satuan_'+CounterJumlahSebelumnya);
+                $labelSatuanSelanjutnya = $('label#satuan_'+CounterJumlahSelanjutnya);
+
+                $labelJumlahSelanjutnya.text(1);
+                $labelSatuanSelanjutnya.text($inputSatuanSebelumnya.val());
+
+                // $.ajax({
+                //     type     : 'POST',
+                //     url      : baseAppUrl + 'save_satuan',
+                //     data     : {command: 'add_child' , item_id : $('input#item_id').val(), jumlah : $inputJumlahSebelumnya.val(), satuan: $inputSatuanSebelumnya.val(), parent : $('input#parent_id').val()},
+                //     dataType : 'json',
+                //     success  : function( results ) {
+                //         console.log('input satuan sukses');
+                //          $('input#parent_id').val(results);
+                //          $inputSatuanIdSebelumnya.val(results);
+                //     }
+                // });
+
+                // $tableHargaItemSatuan.api().ajax.url(baseAppUrl + 'listing_harga_item_satuan/' + item_id).load();
+                // $tableHargaItemSatuanModal.api().ajax.url(baseAppUrl + 'listing_harga_item_satuan_modal/' + item_id).load();
+
+            }else{
+                $('tbody tr#item_row_1', $tableSatuan).show();
+                CounterJumlahSebelumnya = satuanCounter-2;
+                CounterJumlahSelanjutnya = satuanCounter-1;
+                $inputJumlahSebelumnya = $('input#satuan_jumlah_'+CounterJumlahSebelumnya);
+                $labelJumlahSelanjutnya = $('label#jumlah_'+CounterJumlahSelanjutnya);
+
+                $inputSatuanSebelumnya = $('input#satuan_satuan_'+CounterJumlahSebelumnya);
+                $labelSatuanSelanjutnya = $('label#satuan_'+CounterJumlahSelanjutnya);
+
+                $labelJumlahSelanjutnya.text();
+                $labelSatuanSelanjutnya.text($inputSatuanSebelumnya.val());
+
+                $inputTambahRow.val('add_parent');
+            }
+            
+        });
+    };
+
+    var isValidLastRow = function(){
+        
+        var 
+                $satuan = $('input[name$="[satuan]"]', $tableSatuan),
+                // $qtyEls = $('input[name$="[qty]"]', $tableAddPhone),
+                satuanSet    = $satuan.eq($satuan.length-1).val()
+                // qty         = $qtyEls.eq($qtyEls.length-1).val() * 1
+            ;
+
+       // var rowId    = $this('tr').prop('id');
+        //alert(rowId);
+            // console.log('itemcode ' + itemCode + ' processqty ' + processQty);
+            return (satuanSet != '');
+    };
+    var handleBtnDelete = function($btn){
+        var numRow = $('tbody tr', $tableSatuan).length;
+        var 
+            rowId    = $btn.closest('tr').prop('id'),
+            $row     = $('#'+rowId, $tableSatuan);
+
+        $btn.on('click', function(e){
+            
+                // bootbox.confirm('Are you sure as to delete this item?', function(result){
+                    // if (result==true) {
+                        //if(! isValidLastRow() ) return;
+                        $row.remove();
+                        if($('tbody>tr', $tableSatuan).length == 0){
+                            addItemRow();
+                        }
+                        // focusLastItemCode();
+                     // }
+                // });
+            
+            
+            e.preventDefault();
+        });
+    };
+
+    var handleRadioPrimary = function($rdo, $input){
+        var numRow = $('tbody tr', $tableSatuan).length;
+        // var 
+        //     rowId    = $rdo.closest('tr').prop('id'),
+        //     $row     = $('#'+rowId, $tableSatuan);
+
+        $rdo.on('click', function(e){
+            // if ($rdo.is(':checked'))
+            // {
+            //   alert($rdo.data('id'));
+            // }
+                // bootbox.confirm('Are you sure as to delete this item?', function(result){
+                    // if (result==true) {
+                        //if(! isValidLastRow() ) return;
+                        // $row.remove();
+                        // if($('tbody>tr', $tableSatuan).length == 0){
+                        //     addItemRow();
+                        // }
+                        // focusLastItemCode();
+                     // }
+                // });
+            // alert($input.val());
+
+            $('input#satuan_primary').val($input.val());
+            // e.preventDefault();
+        });
+    };
+
+    // var handleRadioPrimary = function(){
+    //     $('.is_primary').click(function() {
+            
+    //             // bootbox.confirm('Are you sure as to delete this item?', function(result){
+    //                 // if (result==true) {
+    //                     //if(! isValidLastRow() ) return;
+    //                     // $row.remove();
+    //                     // if($('tbody>tr', $tableSatuan).length == 0){
+    //                     //     addItemRow();
+    //                     // }
+    //                     // focusLastItemCode();
+    //                  // }
+    //             // });
+    //         alert($(this).data('id'));
+            
+    //         e.preventDefault();
+    //     });
+    // };
+
+    var handleJumlah = function($input){
+        var numRow = $('tbody tr', $tableSatuan).length;
+        var 
+            rowId    = $input.closest('tr').prop('id'),
+            $row     = $('#'+rowId, $tableSatuan);
+
+        $input.on('change', function(e){
+            
+            //alert($(this).val());
+            // $('label.jumlah', $row).text($(this).val());    
+            $('label#jumlah_1').text($(this).val());    
+            
+            e.preventDefault();
+        });
+    };
+
+    var handleSatuanOnChange = function($inputSatuan, $inputJumlah, $inputActionSatuan, $inputActionJumlah){
+        var numRow = $('tbody tr', $tableSatuan).length;
+        var 
+            rowId    = $inputSatuan.closest('tr').prop('id'),
+            $row     = $('#'+rowId, $tableSatuan);
+
+         CounterJumlahSebelumnya = satuanCounter-2;
+        CounterJumlahSelanjutnya = satuanCounter-1;
+        $inputJumlahSebelumnya = $('input#satuan_jumlah_'+CounterJumlahSebelumnya);
+        $labelJumlahSelanjutnya = $('label#jumlah_'+CounterJumlahSelanjutnya);
+
+        $inputSatuanIdSebelumnya = $('input#satuan_id_'+CounterJumlahSebelumnya);
+        $inputSatuanSebelumnya = $('input#satuan_satuan_'+CounterJumlahSebelumnya);
+        $labelSatuanSelanjutnya = $('label#satuan_'+CounterJumlahSelanjutnya);
+
+        $labelJumlahSelanjutnya.text(1);
+
+        $inputJumlah.on('change', function(e){
+            if ($inputActionJumlah.val() == "") {
+                // alert($(this).val()); 
+                $inputActionJumlah.val('add_jumlah');
+            }else if ($inputActionJumlah.val() == "add_jumlah") {
+                // alert('add Jumlah ' + $(this).val()); 
+                $inputActionJumlah.val('edit_jumlah');
+            }else{
+                // alert('edit Jumlah ' + $(this).val()); 
+                $labelSatuanSelanjutnya.text($inputSatuanSebelumnya.val());
+            }
+            //alert($(this).val());
+            // $('label.jumlah', $row).text($(this).val());    
+            // $('label#jumlah_1').text($(this).val()); 
+              
+            
+            e.preventDefault();
+        });        
+
+        $inputSatuan.on('change', function(e){
+            if ($inputActionSatuan.val() == "") {
+                // alert($(this).val()); 
+                if ($('input#parent_id').val() == "") {
+                    // $.ajax({
+                    //     type     : 'POST',
+                    //     url      : baseAppUrl + 'save_satuan',
+                    //     data     : {command: 'add_parent' , item_id : $('input#item_id').val(), jumlah : $inputJumlah.val(), satuan: $inputSatuan.val()},
+                    //     dataType : 'json',
+                    //     success  : function( results ) {
+                    //         console.log('input satuan sukses');
+                    //          $('input#parent_id').val(results);
+                    //          $inputSatuanId.val(results);
+
+                    //          $tableHargaItemSatuan.api().ajax.url(baseAppUrl + 'listing_harga_item_satuan/' + $('input#item_id').val()).load();
+                    //          $tableHargaItemSatuanModal.api().ajax.url(baseAppUrl + 'listing_harga_item_satuan_modal/' + $('input#item_id').val()).load();
+                    //     }
+                    // });
+                }else{
+                    // $.ajax({
+                    //     type     : 'POST',
+                    //     url      : baseAppUrl + 'save_satuan',
+                    //     data     : {command: 'add_child' , item_id : $('input#item_id').val(), jumlah : $inputJumlah.val(), satuan: $inputSatuan.val(), parent : $('input#parent_id').val()},
+                    //     dataType : 'json',
+                    //     success  : function( results ) {
+                    //         console.log('input satuan sukses');
+                    //          $('input#parent_id').val(results);
+                    //          $inputSatuanId.val(results);
+
+                    //          $tableHargaItemSatuan.api().ajax.url(baseAppUrl + 'listing_harga_item_satuan/' + $('input#item_id').val()).load();
+                    //          $tableHargaItemSatuanModal.api().ajax.url(baseAppUrl + 'listing_harga_item_satuan_modal/' + $('input#item_id').val()).load();
+                    //     }
+                    // });
+                }
+                
+                $inputActionSatuan.val('add_satuan');
+
+            }else if ($inputActionSatuan.val() == "add_satuan") {
+                
+                    // $.ajax({
+                    //     type     : 'POST',
+                    //     url      : baseAppUrl + 'save_satuan',
+                    //     data     : {command: 'edit_satuan' , satuan: $inputSatuan.val(), satuan_id : $inputSatuanId.val()},
+                    //     dataType : 'json',
+                    //     success  : function( results ) {
+                    //         console.log('update satuan sukses');
+                    //          // $('input#parent_id').val(results);
+                    //          // $inputSatuanId.val(results);
+                    //          alert(results);
+                    //     }
+                    // });
+                
+                $labelSatuanSelanjutnya.text($inputSatuanSebelumnya.val());
+                // $inputActionSatuan.val('edit_satuan');
+
+            }else{
+                // alert('edit satuan ' + $(this).val()); 
+                $labelSatuanSelanjutnya.text($inputSatuanSebelumnya.val());
+            }
+            //alert($(this).val());
+            // $('label.jumlah', $row).text($(this).val());    
+            // $('label#jumlah_1').text($(this).val()); 
+              
+            
+            e.preventDefault();
+        });
+    };
+
+    var handleSatuan = function($input){
+        var numRow = $('tbody tr', $tableSatuan).length;
+        var 
+            rowId    = $input.closest('tr').prop('id'),
+            $row     = $('#'+rowId, $tableSatuan);
+
+        $input.on('change', function(e){
+            
+            //alert($(this).val());
+            // $('label.satuan', $row).text($(this).val());    
+            $('label#satuan_1').text($(this).val());
+            
+            e.preventDefault();
+        });
+    };
+
+    var handleValidation = function() {
+        var error1   = $('.alert-danger', $form);
+        var success1 = $('.alert-success', $form);
+
+        $form.validate({
+            // class has-error disisipkan di form element dengan class col-*
+            errorPlacement: function(error, element) {
+                error.appendTo(element.closest('[class^="col"]'));
+            },
+            errorElement: 'span', //default input error message container
+            errorClass: 'help-block', // default input error message class
+            focusInvalid: false, // do not focus the last invalid input
+            ignore: "",
+            // rules: {
+            // buat rulenya di input tag
+            // },
+            invalidHandler: function (event, validator) { //display error alert on form submit              
+                success1.hide();
+                error1.show();
+                Metronic.scrollTo(error1, -200);
+            },
+
+            highlight: function (element) { // hightlight error inputs
+                $(element).closest('[class^="col"]').addClass('has-error');
+            },
+
+            unhighlight: function (element) { // revert the change done by hightlight
+                $(element).closest('[class^="col"]').removeClass('has-error'); // set error class to the control group
+            },
+
+            success: function (label) {
+                $(label).closest('[class^="col"]').removeClass('has-error'); // set success class to the control group
+            }
+
+            // // ajax form submit
+            // submitHandler: function (form) {
+            //     success1.show();
+            //     error1.hide();
+            //     // ajax form submit
+            // }
+        });
+        
+        //apply validation on select2 dropdown value change, this only needed for chosen dropdown integration.
+        $('#bahasa', $form).change(function () {
+            $form.validate().element($(this)); //revalidate the chosen dropdown value and show error or success message for the input
+        });
+    }
+    
+    //untuk dropdown pemilihan bahasa agar muncul bendera setiap negara
+	function formatLang(state) {
+	    if (!state.id) return state.text; // optgroup
+	    return '<img class="flag" src="' + mb.baseUrl() + 'assets/global/img/flags/' + state.id.toLowerCase() + '.png"/>&nbsp;&nbsp;' + state.text;
+	}
+
+	var handleDropdownLanguage = function()
+	{
+	    $('#bahasa', $form).select2({
+	        placeholder: 'Select a Language',
+	        allowClear: true,
+	        formatResult: formatLang,
+	        formatSelection: formatLang,
+	        escapeMarkup: function (m) {
+	            return m;
+	        }
+	    });
+	}
+
+	var handleConfirmSave = function(){
+		$('a#confirm_save', $form).click(function() {
+			if (! $form.valid()) return;
+
+			var msg = $(this).data('confirm');
+		    bootbox.confirm(msg, function(result) {
+		        if (result==true) {
+		            $('#save', $form).click();
+		        }
+		    });
+		});
+	};
+
+	var handleErrorAfterSubmit = function(){
+        
+        var hasError = false;
+        $('.help-block', $form).each(function() {
+            var str = $(this).text();
+            if (str.length>0) {
+                //jika tidak mangandung kata 'hint:', ini adalah error message.
+                if (str.indexOf('hint:') == -1) {
+                    $(this).parent().addClass( "has-error" );
+                    hasError = true;
+                }
+            } 
+        });
+        
+        if (hasError == true) $('.alert-danger', $form).show();
+
+	};
+
+    var handleUploadify = function(counter)
+    {
+
+        $("#user_foto_" + counter).uploadify({
+            'swf'               : mb.baseUrl()+'assets/mb/global/uploadify/uploadify.swf',
+            'uploader'          : mb.baseUrl()+'assets/mb/global/uploadify/uploadify6.php',
+            'formData'          : {'type' : 'gambar_item'}, 
+            'fileObjName'       : 'Filedata', 
+            'fileSizeLimit'     : '512KB',  //TODO : mau pake parameter??
+            'fileTypeDesc'      : 'All Files',
+            'fileTypeExts'      : '*.*',
+            'method'            : 'post', 
+            'multi'             : false, 
+            'queueSizeLimit'    : 1, 
+            'removeCompleted'   : true, 
+            'removeTimeout'     : 5, 
+            'uploadLimit'       : 5, 
+            'onUploadSuccess'   : function(file, data, response) {
+                $("#choosen_file_" + counter).html('<a href="'+mb.baseUrl()+'assets/mb/var/temp/'+data+'" target="_blank"><img src="'+mb.baseUrl()+'assets/mb/var/temp/'+data+'" alt="Smiley face" style="border: 1px solid #000; max-width:200px; max-height:200px;"></a>');
+                $("#choosen_file_container_" + counter).show();
+                $("#url_" + counter).val(mb.baseUrl()+'mb/var/temp/'+data);
+                $("#name_file_" + counter).val(data);
+            }
+        }); 
+    }
+
+    var handleSelectKategori = function(){
+        $('select#kategori', $form).on('change', function() {
+            //alert($(this).val());
+            var $tipe_akun = $('#tipe_akun', $form),
+                $id_tipe_akun = $('input#tipe_akun', $form),
+                $sub_kategori = $('select#sub_kategori', $form);
+
+            //$kode_cabang_rujukan.val($(this).val());
+            $.ajax({
+                type     : 'POST',
+                url      : baseAppUrl + 'get_tipe_akun',
+                data     : {id_kategori: $(this).val()},
+                dataType : 'json',
+                success  : function( results ) {
+                  
+                    $.each(results, function(key, value) {
+
+                        var tipe_akun = '';
+                        if(value.id_tipe_akun == 1)
+                        {
+                            tipe_akun = 'Persediaan Barang';
+                        }
+                        if(value.id_tipe_akun == 2)
+                        {
+                            tipe_akun = 'Harta Lancar';
+                        }
+                        if(value.id_tipe_akun == 3)
+                        {
+                            tipe_akun = 'Harta Tetap';
+                        }
+                        if(value.id_tipe_akun == 4)
+                        {
+                            tipe_akun = 'Jasa';
+                        }
+                        else
+                        {
+                            tipe_akun = 'Tipe Akun';
+                        }
+                        $tipe_akun.text(tipe_akun);
+                        $id_tipe_akun.val(value.id_tipe_akun);
+
+                    });
+                }
+            });
+
+            $.ajax({
+                type     : 'POST',
+                url      : baseAppUrl + 'get_sub_kategori',
+                data     : {id_kategori: $(this).val()},
+                dataType : 'json',
+                success  : function( results ) {
+                  
+                    $.each(results, function(key, value) {
+
+                        $sub_kategori.empty();
+
+                        $sub_kategori.append($("<option></option>")
+                            .attr("value", '').text('Pilih Sub Kategori..'));
+
+                        $.each(results, function(key, value) {
+                            $sub_kategori.append($("<option></option>")
+                                .attr("value", value.id).text(value.nama));
+                            $sub_kategori.val('');
+
+                        });
+
+                    });
+                }
+            });
+        });
+    };
+
+    var handleKategoriSet = function(){
+        var $tipe_akun = $('#tipe_akun', $form),
+            $id_tipe_akun = $('input#tipe_akun', $form),
+            $sub_kategori = $('select#sub_kategori', $form);
+
+            //$kode_cabang_rujukan.val($(this).val());
+            $.ajax({
+                type     : 'POST',
+                url      : baseAppUrl + 'get_tipe_akun',
+                data     : {id_kategori: $('select#kategori', $form).val()},
+                dataType : 'json',
+                success  : function( results ) {
+                  
+                    $.each(results, function(key, value) {
+
+                        //alert(value.tipe_akun);
+                        $tipe_akun.text(value.tipe_akun);
+                        $id_tipe_akun.val(value.id_tipe_akun);
+
+                    });
+                }
+            });
+
+            $.ajax({
+                type     : 'POST',
+                url      : baseAppUrl + 'get_sub_kategori',
+                data     : {id_kategori: $(this).val()},
+                dataType : 'json',
+                success  : function( results ) {
+                  
+                    $.each(results, function(key, value) {
+
+                        $sub_kategori.empty();
+
+                        $sub_kategori.append($("<option></option>")
+                            .attr("value", '').text('Pilih Sub Kategori..'));
+
+                        $.each(results, function(key, value) {
+                            $sub_kategori.append($("<option></option>")
+                                .attr("value", value.id).text(value.nama));
+                            $sub_kategori.val('');
+
+                        });
+
+                    });
+                }
+            });
+    };
+
+    var handleDataTable = function(){
+        $tableHargaItemSatuan.dataTable({
+            'processing'            : true,
+            'serverSide'            : true,
+            'language'              : mb.DTLanguage(),
+            'ajax'                  : {
+                'url' : baseAppUrl + 'listing_harga_item_satuan/0',
+                'type' : 'POST',
+            },          
+            'pageLength'            : 10,
+            'lengthMenu'            : [[10, 25, 50, 100], [10, 25, 50, 100]],
+            'order'                 : [[1, 'asc']],
+            'columns'               : [
+                { 'name':'item_satuan.item_id','visible' : false, 'searchable': false, 'orderable': true },
+                { 'name':'item_satuan.id','visible' : false, 'searchable': false, 'orderable': true },
+                { 'name':'item_harga.tanggal','visible' : true, 'searchable': true, 'orderable': true },
+                { 'name':'item_satuan.nama','visible' : true, 'searchable': true, 'orderable': true },
+                { 'name':'item_harga.harga','visible' : true, 'searchable': true, 'orderable': true },
+                ]
+        });
+    }
+
+    var handleDataTableModal = function(){
+
+        $tableHargaItemSatuanModal.dataTable({
+            'processing'            : true,
+            'serverSide'            : true,
+            'language'              : mb.DTLanguage(),
+            'ajax'                  : {
+                'url' : baseAppUrl + 'listing_harga_item_satuan_modal_by_tanggal/' + 0 + '/' + tanggal ,
+                'type' : 'POST',
+            },          
+            'pageLength'            : 10,
+            'lengthMenu'            : [[10, 25, 50, 100], [10, 25, 50, 100]],
+            'order'                 : [[1, 'asc']],
+            'columns'               : [
+
+                { 'name':'item_satuan.item_id','visible' : false, 'searchable': false, 'orderable': true },
+                { 'name':'item_satuan.id','visible' : false, 'searchable': false, 'orderable': true },
+                { 'name':'item_harga.tanggal','visible' : false, 'searchable': true, 'orderable': true },
+                { 'name':'item_satuan.nama','visible' : true, 'searchable': false, 'orderable': true },
+                { 'name':'item_harga.harga','visible' : true, 'searchable': true, 'orderable': true },
+
+                ]
+        });
+    }
+
+    var handleDatePickers = function () {
+        if (jQuery().datepicker) {
+            $('.date', $form).datepicker({
+                rtl: Metronic.isRTL(),
+                format : 'dd MM yyyy',
+                autoclose: true,
+            }).on('changeDate', function(ev){
+
+            $tanggal = $('input#tanggal').val();
+            var months    = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'],
+                    date_selected      = new Date($tanggal),
+                    day       = date_selected.getDate(),
+                    month     = date_selected.getMonth(),
+                    yy        = date_selected.getYear(),
+                    year      = (yy < 1000) ? yy + 1900 : yy,
+                    tanggal_dipilih   = year +':' + months[month] + ':' + day;
+
+            
+            $tableHargaItemSatuanModal.api().ajax.url(baseAppUrl + 'listing_harga_item_satuan_modal_by_tanggal/' + $('input#item_id').val() + '/' + tanggal_dipilih).load();
+            
+
+
+            });
+            $('body').removeClass("modal-open"); // fix bug when inline picker is used in modal
+        }
+    }
+
+    var handleSelectSubKategori = function(){
+        $('select#sub_kategori').on('change', function(){
+            
+            $.ajax({
+                type        : 'POST',
+                url         : baseAppUrl + 'show_spesifikasi',
+                data        : {sub_kategori_id: $(this).val()},
+                dataType    : 'text',
+                beforeSend : function(){
+                    Metronic.blockUI({boxed: true });
+                },
+                success     : function( results ) {
+                    
+                    $("#show_spesifikasi").html(results);
+               
+                },
+                complete : function(){
+                    Metronic.unblockUI();
+                }
+            });
+        }) 
+    }
+
+    var handleMultiSelect = function () {
+        $('#multi_select_penjamin').multiSelect(); 
+    };
+
+    var handleTabClicked = function(){
+        // $('a#penjualan').on('click', function(){
+        //     location.href = baseAppUrl + 'add/#penjualan';
+        // })
+
+    }
+    var handleUpdateItemSatuan = function(){
+        $('.satuan').on('change', function(e){
+            // alert($(this).data('row'));
+            thisRow = $(this).data('row');
+            nextRow = $(this).data('row')+1;
+
+            $satuan_id = $('input#satuan_id_'+thisRow).val();
+            $jumlah = $('input#satuan_jumlah_'+thisRow).val();
+            $item_id = $('input#item_id').val();
+            $satuan = $('input#satuan_satuan_'+thisRow).val();
+            $parent_id = $('input#parent_id').val();
+
+            // alert('row saat ini : ' + thisRow + ' row selanjutnya : ' + nextRow);
+
+            if ($('input#satuan_action_satuan_' + thisRow).val() == "") {
+                // alert($(this).val()); 
+                if ($('input#parent_id').val() == "") {
+                    $.ajax({
+                        type     : 'POST',
+                        url      : baseAppUrl + 'save_satuan',
+                        data     : {command: 'add_parent' , item_id : $item_id, jumlah : $jumlah, satuan: $satuan},
+                        dataType : 'json',
+                        success  : function( results ) {
+                            console.log('input satuan sukses');
+                             $('input#parent_id').val(results);
+                             $inputSatuanId.val(results);
+
+                             $tableHargaItemSatuan.api().ajax.url(baseAppUrl + 'listing_harga_item_satuan/' + $('input#item_id').val()).load();
+                             $tableHargaItemSatuanModal.api().ajax.url(baseAppUrl + 'listing_harga_item_satuan_modal_by_tanggal/' + $('input#item_id').val() + '/' + tanggal).load();
+                        }
+                    });
+                }else{
+                    $.ajax({
+                        type     : 'POST',
+                        url      : baseAppUrl + 'save_satuan',
+                        data     : {command: 'add_child' , item_id : $item_id, jumlah : $jumlah, satuan: $satuan, parent : $parent_id},
+                        dataType : 'json',
+                        success  : function( results ) {
+                            console.log('input satuan sukses');
+                             $('input#parent_id').val(results);
+                             $inputSatuanId.val(results);
+
+                             $tableHargaItemSatuan.api().ajax.url(baseAppUrl + 'listing_harga_item_satuan/' + $('input#item_id').val()).load();
+                             $tableHargaItemSatuanModal.api().ajax.url(baseAppUrl + 'listing_harga_item_satuan_modal_by_tanggal/' + $('input#item_id').val() + '/' + tanggal).load();
+                        }
+                    });
+                }
+                
+                $('input#satuan_action_satuan_' + thisRow).val('added_satuan');
+
+            }else if ($('input#satuan_action_satuan_' + thisRow).val() == "added_satuan") {
+                
+                    $.ajax({
+                        type     : 'POST',
+                        url      : baseAppUrl + 'save_satuan',
+                        data     : {command: 'edit_satuan' , satuan: $satuan, satuan_id : $satuan_id},
+                        dataType : 'json',
+                        success  : function( results ) {
+                            console.log('update satuan sukses');
+                             // $('input#parent_id').val(results);
+                             // $inputSatuanId.val(results);
+                             // alert(results);
+                             $tableHargaItemSatuan.api().ajax.url(baseAppUrl + 'listing_harga_item_satuan/' + $('input#item_id').val()).load();
+                             $tableHargaItemSatuanModal.api().ajax.url(baseAppUrl + 'listing_harga_item_satuan_modal_by_tanggal/' + $('input#item_id').val() + '/' + tanggal).load();
+                        }
+                    });
+                
+                $('label#satuan_'+nextRow).text($('input#satuan_satuan_'+thisRow).val());
+                // alert($satuan_id);
+                // $inputActionSatuan.val('edit_satuan');
+
+            }
+        });
+
+        $('.jumlah').on('change', function(e){
+            // alert($(this).data('row'));
+            thisRow = $(this).data('row');
+            nextRow = $(this).data('row')+1;
+
+            $satuan_id = $('input#satuan_id_'+thisRow).val();
+            $jumlah = $('input#satuan_jumlah_'+thisRow).val();
+            $item_id = $('input#item_id').val();
+            $satuan = $('input#satuan_satuan_'+thisRow).val();
+            $parent_id = $('input#parent_id').val();
+
+            // alert('row saat ini : ' + thisRow + ' row selanjutnya : ' + nextRow);
+
+            if ($('input#satuan_action_jumlah_' + thisRow).val() == "") {
+                
+                $('input#satuan_action_jumlah_' + thisRow).val('added_jumlah');
+
+            }else if ($('input#satuan_action_jumlah_' + thisRow).val() == "added_jumlah") {
+                
+                    $.ajax({
+                        type     : 'POST',
+                        url      : baseAppUrl + 'save_satuan',
+                        data     : {command: 'edit_jumlah' , jumlah: $jumlah, satuan_id : $satuan_id},
+                        dataType : 'json',
+                        success  : function( results ) {
+                            console.log('update satuan sukses');
+                             // $('input#parent_id').val(results);
+                             // $inputSatuanId.val(results);
+                             // alert(results);
+                             $tableHargaItemSatuan.api().ajax.url(baseAppUrl + 'listing_harga_item_satuan/' + $('input#item_id').val()).load();
+                             $tableHargaItemSatuanModal.api().ajax.url(baseAppUrl + 'listing_harga_item_satuan_modal_by_tanggal/' + $('input#item_id').val() + '/' + tanggal).load();
+                        }
+                    });
+                
+                // $('label#satuan_'+nextRow).text($('input#satuan_satuan_'+thisRow).val());
+                // alert($satuan_id);
+                // $inputActionSatuan.val('edit_satuan');
+
+            }
+        });
+
+    }
+
+    o.init = function(){
+    	// handleValidation();
+    	// handleDropdownLanguage();
+        baseAppUrl = mb.baseUrl() + 'master/item/';
+        // handleUploadify();
+    	handleConfirmSave();
+        handleSelectKategori();
+        handleSelectSubKategori();
+        // handleKategoriSet();
+        handleMultiSelect();
+        handleTambahRow();
+        handleDeleteRow();
+        handleDataTable();
+        handleDataTableModal();
+        handleModalHarga();
+        handleDatePickers();
+        handleTabClicked();
+        initForm();;
+        // handleUpdateItemSatuan();
+        // handleTes();
+    	// handleErrorAfterSubmit();
+    };
+
+}(mb.app.item.add));
+
+
+// initialize  mb.app.users.add
+$(function(){
+	mb.app.item.add.init();
+});

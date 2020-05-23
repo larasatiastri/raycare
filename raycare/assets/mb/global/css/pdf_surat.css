@@ -1,0 +1,180 @@
+body
+{
+	font-size: 12px;
+	font-family: Arial;
+	text-align: justify;
+}
+
+#header 
+{
+	width: 100%;
+	border:0px solid green;
+	margin-bottom:20px;
+}
+
+#head-table, #head-table-inform{
+	width: 100%;
+	margin-bottom: 1px;
+}
+
+#body
+{
+	width: 100%;
+	margin: auto;
+}
+
+#body-table td{
+	height: 75px;
+}
+
+#body-table{
+	border-collapse:collapse;
+	color:#333;
+	width: 100%;
+}
+
+#body-table #signature{
+	width: 20%;
+	text-align: center;
+	height: 0px;
+}
+
+#body-table th, #body-table td{
+	vertical-align:top;
+	padding:5px 10px;
+	border:1px solid #000;
+}
+
+#title {
+	text-transform: uppercase;
+	text-align: center;
+	font-size: 16px;
+	/*margin-left: 30px;*/
+	text-decoration:overline;
+}
+
+#no_surat {
+	text-align: center;
+	/*margin-left: 30px;*/
+	text-decoration:overline;
+}
+
+.title-child{
+	font-size: 14px;
+}
+
+.head{
+	display: block;
+	width: 100%;
+	margin: auto;
+	border:0px solid red;
+	margin:0px;
+	/*padding-left:10px;*/
+}
+
+.logo-a5{
+	float: left;
+	width : 158px;
+	height: 70px;
+	float:left; background-color:#FFF;
+	padding-right:10px;
+}
+
+.logo-a4{
+	float: left;
+	width : 185px;
+	height: 80px;
+	float:left; background-color:#FFF;
+	padding-right:180px;
+}
+
+.logo-a5 div{
+	margin-left:54px;
+	padding:1px;
+	background-color:red;
+	border-radius:3px;
+}
+
+.logo-a4 div{
+	margin-left:54px;
+	padding:1px;
+	background-color:red;
+	border-radius:3px;
+}
+.rs-code p{
+	color:#fff;
+	margin:0px;
+	padding:0px;
+	font-size:8px;
+	text-align:center;
+}
+
+.address {
+	width: 158px;
+	height: 70px;
+	float:left;
+	border-left:1px solid #2462AC;
+	padding-left:10px;
+	padding-right:10px;
+}
+
+.address span{
+	font-size:8px; color:#2462AC;
+}
+
+.socmed {
+	width: 158px;
+	height: 70px;
+	float:left;
+	background-color:#FFF;
+	border-left:1px solid #2462AC;
+	padding-left:10px;
+}
+
+.socmed span{
+	font-size:8px;
+	color:#2462AC;
+}
+
+.title{
+	font-size: 14px;
+	text-align: center;
+
+}
+
+.title p{
+	margin-left: -200px;
+
+}
+
+.term{
+	font-size: 9px;
+	font-style: italic;
+}
+
+.label {
+    font-size: 12px;
+    font-family: Arial, Helvetica, sans-serif !important;
+    padding: 1px 4px 1px 4px;
+}
+
+#paragraf_surat{
+	text-align: justify;
+}
+
+#tanggal_surat{
+	text-align: right;
+}
+
+#penutup_surat{
+	margin-left: 360px;
+	text-align: center;
+}
+
+#tujuan_surat{
+	text-align: justify;
+}
+
+#isi_surat{
+	text-align: justify;
+}

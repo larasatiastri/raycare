@@ -1,0 +1,7 @@
+{
+	"require": {
+		"bshaffer/oauth2-server-php": "dev-master",
+		"jeremykendall/query-auth": "dev-develop",
+		"philipbrown/signplz": "1.*"
+	}
+}

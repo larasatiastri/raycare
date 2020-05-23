@@ -1,0 +1,41 @@
+/* This is a compiled file, you should be editing the file in the templates directory */
+.pace {
+  -webkit-pointer-events: none;
+  pointer-events: none;
+
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+.pace.pace-inactive .pace-progress {
+  display: none;
+}
+
+.pace .pace-progress {
+  position: fixed !important;
+  z-index: 2000;
+  top: 200px !important;
+  right: 0 !important;
+  height: 0rem;
+  width: 0rem;
+
+  -webkit-transform: translate3d(0, 0, 0) !important;
+  -ms-transform: translate3d(0, 0, 0) !important;
+  transform: translate3d(0, 0, 0) !important;
+}
+
+.pace .pace-progress:after {
+  display: block !important;
+  position: absolute !important;
+  top: -50px !important;
+  right: 1em !important;
+  content: attr(data-progress-text);
+  font-family: "Helvetica Neue", sans-serif;
+  font-weight: 600;
+  font-size: 5rem;
+  line-height: 1 !important;
+  text-align: right;
+  /*color: rgba(34, 153, 221, 0.99999999999999996);*/
+  color: rgba(255, 0, 0, 0.99999999999999996);
+}

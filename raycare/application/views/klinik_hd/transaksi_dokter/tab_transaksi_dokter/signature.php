@@ -1,0 +1,748 @@
+<html>
+	<head>
+	<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/south-street/jquery-ui.css" rel="stylesheet">
+	<link href="<?=base_url()?>assets/mb/global/css/jquery.signature.css" rel="stylesheet">
+	<link rel="stylesheet" href="<?=base_url()?>assets/mb/global/css/signature-pad.css">
+	<link rel="stylesheet" href="<?=base_url()?>assets/metronic/global/plugins/bootstrap/css/bootstrap.css" type="text/css">
+	<link href="<?=base_url()?>assets/metronic/global/css/components-rounded.min.css" id="style_components" rel="stylesheet" type="text/css">
+	<link href="<?=base_url()?>assets/metronic/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+		<style type="text/css">
+
+			body
+			{
+				font-size: 11px;
+				font-family: Arial;
+				text-align: justify;
+				padding: 10px;
+			}
+
+			table {
+				border: none;
+				font-size: 11px;
+				margin: 0;
+				padding: 0;
+			}
+
+			table, td, th {
+			    border: 0px solid green;
+			    padding: 2px;
+			}
+			.container{
+				border: 1px solid #ddd;
+				padding: 10px;
+				width: 1030px;
+			}
+			#header 
+			{
+				width: 100%;
+				border:0px solid green;
+				margin-bottom:20px;
+			}
+
+			#head-table, #head-table-inform{
+				width: 100%;
+				margin-bottom: 1px;
+			}
+
+			#body
+			{
+				width: 100%;
+				margin: auto;
+			}
+
+			#body-table td{
+				height: 75px;
+			}
+
+			#body-table{
+				border-collapse:collapse;
+				color:#333;
+				width: 100%;
+			}
+
+			#body-table #signature{
+				width: 20%;
+				text-align: center;
+				height: 0px;
+			}
+
+			#body-table th, #body-table td{
+				vertical-align:top;
+				padding:5px 10px;
+				border:0px solid #000;
+			}
+
+			#title {
+				text-transform: uppercase;
+				text-align: center;
+				font-size: 13px;
+				/*margin-left: 30px;*/
+				/*text-decoration:overline;*/
+			}
+
+			#no_surat {
+				text-align: center;
+				/*margin-left: 30px;*/
+				text-decoration:overline;
+			}
+
+			.title-child{
+				font-size: 13px;
+			}
+
+			.head{
+				display: block;
+				width: 100%;
+				margin: auto;
+				border:0px solid red;
+				margin:0px;
+				/*padding-left:10px;*/
+			}
+			.logo-a4{
+				float: left;
+				width : 165px;
+				height: 70px;
+				float:left;
+				/*background-color:#fff;*/
+				padding-right:180px;
+			}
+			.logo-a4-margin{
+				float: left;
+				width:20px;
+				height: 70px; 
+			}
+			.logo-a4 img{
+				width: 180px !important;
+				/*height: 20px;*/
+			}
+
+			.logo-a4 div{
+				margin-left:63px;
+				padding:1px;
+				width: 100px;
+				background-color:#ed3237;
+				border-radius:3px;
+			}
+
+			.rs-code p{
+				color:#FFF;
+				margin:0px;
+				padding:0px;
+				width: 100px;
+				font-size:8px;
+				text-align:center;
+			}
+
+			.address {
+				width: 208px;
+				height: 70px;
+				float:left;
+				text-align: left;
+				border-left:1px solid #2462AC;
+				padding-left:10px;
+				padding-right:10px;
+
+			}
+
+			.address span{
+				font-size:8px; color:#2462AC;
+			}
+
+			.socmed {
+				width: 158px;
+				height: 70px;
+				float:left;
+				/*background-color:#FFF;*/
+				border-left:1px solid #2462AC;
+				padding-left:10px;
+			}
+
+			.socmed span{
+				font-size:8px;
+				color:#2462AC;
+			}
+
+			.title{
+				font-size: 13px;
+				text-align: center;
+
+			}
+
+			.title p{
+				margin-left: -200px;
+
+			}
+
+			.term{
+				font-size: 11px;
+				font-style: italic;
+			}
+			
+			.label {
+			    font-size: 11px;
+			    font-family: Arial, Helvetica, sans-serif !important;
+			    padding: 1px 4px 1px 4px;
+			}
+
+			#paragraf_surat{
+				text-align: justify;
+			}
+
+			#tanggal_surat{
+				text-align: right;
+			}
+
+			#penutup_surat{
+				margin-left: 1000px;
+				text-align: right;
+			}
+
+			.signate-right{
+				width: 152px;
+				height: 100px;
+				background-color: #FFF;
+				float: right;
+				text-align: center;
+			}
+
+			#tujuan_surat{
+				text-align: justify;
+			}
+
+			#isi_surat{
+				text-align: justify;
+				margin-left: 10px;
+			}
+
+			.line1 {
+		        width: 112px;
+		        height: 27px;
+		        border-bottom: 1px solid red;
+		        -webkit-transform:
+		            translateY(-20px)
+		            translateX(5px)
+		            rotate(27deg); 
+		        position: absolute;
+		        /* top: -20px; */
+		    }
+		    .line2 {
+		        width: 112px;
+		        height: 27px;
+		        border-bottom: 1px solid green;
+		        -webkit-transform:
+		            translateY(20px)
+		            translateX(5px)
+		            rotate(-26deg);
+		        position: absolute;
+		        top: -33px;
+		        left: -13px;
+		    }
+
+		   .stempel{
+			width:200px !important;
+			/*margin-right: -200px !important;*/
+			padding:1px 1px 1px 1px;
+			/*margin-top: 575px;
+			margin-left: 240px;*/
+			height:8px !important;
+			position: relative !important;
+		    top: 300 !important;
+		    left: 420 !important;
+			opacity: 0.5;
+			z-index: -1;
+			}
+			.stempel-bed{
+				width: 70px;
+				height: 70px;
+				padding-left: 608px;
+				/*background-color: yellow;*/
+				/*position: fixed !important;*/
+			}
+
+			.bed{
+				color: red;
+				font-size: 66px;
+				width:70px !important;
+				/*margin-right: -200px !important;*/
+				padding:1px 1px 1px 1px;
+				/*margin-top: 75px;
+				margin-left: 40px;
+*/				height:70px !important;
+				position:relative; !important;
+				bottom:0 !important;
+				right:-323 !important;
+				opacity: 0.5;
+				z-index: -1;
+				/*border:8px solid red;
+				border-radius: 50%;*/
+			}
+
+			.kbw-signature { width: 250px; height: 150px; }
+
+			/*.btn{
+				background: green;
+				color: #fff;
+				padding: 8px 16px;
+			}*/
+
+			.default{
+				width: 100% !important;
+			}
+
+
+
+		</style>
+
+
+	</head>
+	<body onselectstart="return false">
+	<div class="container">
+	<?php
+		$cabang_id      = $this->session->userdata('cabang_id');
+		$cabang         = $this->cabang_m->get($cabang_id);
+		
+		$cabang_alamat  = $this->cabang_alamat_m->get_by(array('cabang_id' => $cabang_id, 'is_primary' => 1, 'is_active' => 1));
+		$cabang_alamat  = object_to_array($cabang_alamat);
+		$cabang_telepon = $this->cabang_telepon_m->get_by(array('cabang_id' => $cabang_id,'is_active' => 1, 'subjek_id' => 8));
+		$cabang_telepon = object_to_array($cabang_telepon);
+		$cabang_fax     = $this->cabang_telepon_m->get_by(array('cabang_id' => $cabang_id,'is_active' => 1, 'subjek_id' => 9));
+		$cabang_fax     = object_to_array($cabang_fax);
+		$cabang_email   = $this->cabang_sosmed_m->get_by(array('tipe' => 1,'cabang_id' => $cabang_id,'is_active' => 1));
+		$cabang_email   = object_to_array($cabang_email);
+		$cabang_fb      = $this->cabang_sosmed_m->get_by(array('tipe' => 3,'cabang_id' => $cabang_id,'is_active' => 1));
+		$cabang_fb      = object_to_array($cabang_fb);
+		$cabang_twitter = $this->cabang_sosmed_m->get_by(array('tipe' => 4,'cabang_id' => $cabang_id,'is_active' => 1));
+		$cabang_twitter = object_to_array($cabang_twitter);
+		$cabang_website = $this->cabang_sosmed_m->get_by(array('tipe' => 2,'cabang_id' => $cabang_id,'is_active' => 1));
+		$cabang_website = object_to_array($cabang_website);
+
+		$data_email = '';
+		foreach ($cabang_email as $email) 
+		{
+			$data_email .= $email['url'].', ';
+		}
+		if (file_exists($_SERVER['DOCUMENT_ROOT'].'/'.config_item('site_logo_real')) && is_file($_SERVER['DOCUMENT_ROOT'].'/'.config_item('site_logo_real'))) 
+        {
+            $image_header = config_item('base_dir').config_item('site_logo_real');
+        }
+        else 
+        {
+            $image_header = config_item('base_dir')."cloud/".config_item('site_dir')."logo/logo-real.png";
+        }
+
+        if($alamat_pasien != '')
+        {
+        	$rt = '';
+			$rw = '';
+			if ($alamat_pasien['rt_rw'] != NULL) 
+			{
+				$rt_rw = explode('_', $alamat_pasien['rt_rw']);
+				$rt = " RT. ".$rt_rw[0];
+				$rw = " RW. ".$rt_rw[1];
+			}
+			
+			$form_alamat = $alamat_pasien['alamat'].$rt.$rw;
+			$form_kel_alamat = ($form_kel_alamat != '')? " Kel. ".$form_kel_alamat:'';
+			$form_kec_alamat = ($form_kec_alamat != '')?  " Kec. ".$form_kec_alamat:'';
+			$form_kota_alamat = ($form_kota_alamat != '')?  " ".$form_kota_alamat:'';
+        }
+   
+		$gender = $pasien['gender'];
+	?>
+		<div id="header">
+			<div class="head">
+				<div class="logo-a4">
+					<img src="<?=$image_header?>">
+					<div class="rs-code">
+						<p>RS CODE : <?=$cabang->kode?></p>
+					</div>
+				</div>
+				<div class="logo-a4-margin"></div>
+				<div class="address">
+					<span><b style="">Address&nbsp;:</b></span>
+					<br>
+					<span><?=$cabang_alamat[0]['alamat']?></span>
+					<br>
+					<br>
+					<span><b>P.</b> <?=$cabang_telepon[0]['nomor']?></span>
+					<br>
+					<span><b>E.</b> <?=rtrim($data_email,', ')?></span>
+					<!-- <span><b>F.</b> <?=$cabang_fax[0]['nomor']?></span> -->
+				</div>
+				<div class="socmed">
+					<span><b>Follow &amp; Visit</b></span><br>
+					<span>fb : <?=$cabang_fb[0]['url']?></span><br>
+					<span>twitter <?=$cabang_twitter[0]['url']?></span><br>
+					<span><?=$cabang_website[0]['url']?></span>
+				</div>
+			<!-- </div> -->
+
+		<!-- </div> -->
+		<?php 
+	        $stempel = config_item('base_dir')."cloud/".config_item('site_dir')."/logo/approved.png";
+	        ?>
+	        <div class="stempel-bed">
+	        	<div class="bed" align="center"><b><?=$assesment['machine_no']?></b></div>
+	        </div>
+	    
+		<div class="stempel"><img src="<?=$stempel?>" style="height:160px;"></div>	
+<form action="<?=base_url()?>klinik_hd/transaksi_dokter/save_persetujuan" method="POST">
+<input type="hidden" name="tindakan_hd_id" id="tindakan_hd_id" value="<?=$tindakan_hd['id']?>">
+	
+		<div id="body_surat">
+		</br>
+			<div id="title">
+				<b>FORMULIR PERNYATAAN PERSETUJUAN TINDAKAN MEDIS</b>
+			</div>
+
+			<br>
+			<div id="isi_surat" class="form">
+			<table border=0 width="100%">
+				<tr>
+					<td width="100%" colspan="7">Yang bertanda tangan dibawah ini :</td>
+				</tr>
+				<tr>
+					<td width="15%" style="vertical-align:top;">Nama</td>
+					<td width="1%" style="vertical-align:top;">:</td>
+					<td width="35%" style="vertical-align:top;"><?=$pj['nama']?></td>
+					<td width="1%" style="vertical-align:top;"></td>
+					<td width="15%" style="vertical-align:top;">No. KTP</td>
+					<td width="1%" style="vertical-align:top;">:</td>
+					<td width="27%" style="vertical-align:top;"><?=$pj['no_ktp']?></td>
+				</tr>
+				<tr>
+					<td width="15%" style="vertical-align:top;">Alamat</td>
+					<td width="1%" style="vertical-align:top;">:</td>
+					<td width="35%" style="vertical-align:top;"><?=ucwords(strtolower($pj_alamat['alamat'])).' '.ucwords(strtolower($form_kel_alamat_pj)).' '.ucwords(strtolower($form_kec_alamat_pj)).' '.ucwords(strtolower($form_kota_alamat_pj))?></td>
+					<td width="1%" style="vertical-align:top;"></td>
+					<td width="15%" style="vertical-align:top;">Telepon</td>
+					<td width="1%" style="vertical-align:top;">:</td>
+					<td width="27%" style="vertical-align:top;"><?=$pj_telepon['nomor']?></td>
+				</tr>
+				<tr>
+					<td width="57%" colspan="4"></td>
+					<td width="15%" style="vertical-align:top;">Status</td>
+					<td width="1%" style="vertical-align:top;">:</td>
+					<td width="27%" style="vertical-align:top;"><?=$status?></td>
+				</tr>
+				<tr>
+					<td width="100%" colspan="7" height="7px"></td>
+				</tr>
+				<tr>
+					<td width="100%" colspan="7">Dengan ini menyatakan sesungguhnya bahwa saya telah memberikan :</td>
+				</tr>
+				<tr>
+					<td width="100%" colspan="7" height="7px"></td>
+				</tr>
+				<tr>
+					<td width="100%" colspan="7" style="text-align:center; font-size:14px;"><b>"P E R S E T U J U A N"</b></td>
+				</tr>
+				<tr>
+					<td width="100%" colspan="7" height="7px"></td>
+				</tr>
+				<tr>
+					<td width="100%" colspan="7">Untuk melakukan tindakan medis berupa : Haemodialisis (Terapi Ginjal)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*dengan Anestesi Umum / Lokal</td>
+				</tr>
+				<tr>
+					<td width="100%" colspan="7">Terhadap pasien dengan data sebagai berikut :</td>
+				</tr>
+				<tr>
+					<td width="15%" style="vertical-align:top;">Nama Lengkap</td>
+					<td width="1%" style="vertical-align:top;">:</td>
+					<td width="35%" style="vertical-align:top;"><?=$pasien['nama']?></td>
+					<td width="1%" style="vertical-align:top;"></td>
+					<td width="15%" style="vertical-align:top;">Umur</td>
+					<td width="1%" style="vertical-align:top;">:</td>
+					<td width="27%" style="vertical-align:top;"><?=$umur_pasien.',&nbsp;'.$gender?></td>
+				</tr>
+				<tr>
+					<td width="15%" style="vertical-align:top;">No. Rekam Medis</td>
+					<td width="1%" style="vertical-align:top;">:</td>
+					<td width="35%" style="vertical-align:top;"><?=$pasien['no_member']?></td>
+					<td width="1%" style="vertical-align:top;"></td>
+					<td width="15%" style="vertical-align:top;">Alamat</td>
+					<td width="1%" style="vertical-align:top;">:</td>
+					<td width="27%" style="vertical-align:top;"><?=ucwords(strtolower($alamat_pasien['alamat'])).' '.ucwords(strtolower($form_kel_alamat)).' '.ucwords(strtolower($form_kec_alamat)).' '.ucwords(strtolower($form_kota_alamat))?></td>
+				</tr>
+				<tr>
+					<td width="15%" style="vertical-align:top;">No. BPJS</td>
+					<td width="1%" style="vertical-align:top;">:</td>
+					<td width="35%" style="vertical-align:top;"><?=$pasien_penjamin['no_kartu']?></td>
+					<td width="1%" style="vertical-align:top;"></td>
+					<td width="15%" style="vertical-align:top;">Telepon</td>
+					<td width="1%" style="vertical-align:top;">:</td>
+					<td width="27%" style="vertical-align:top;"><?=$telepon_pasien['nomor']?></td>
+				</tr>
+				<tr>
+					<td width="100%" colspan="7" height="7px"></td>
+				</tr>
+				<tr>
+					<td width="100%" colspan="7">Untuk ini saya menyatakan pula :</td>
+				</tr>
+				
+			</table>
+			<table border=0 width="100%">
+				<tr>
+					<td width="2%" style="vertical-align:top;">a.</td>
+					<td width="2%" style="vertical-align:top;"></td>
+					<td width="90%" colspan="5" style="text-align:justify;">Bahwa telah dijelaskan kepada saya mengenai diagnosis, tata cara, tujuan resiko dan komplikasi yang mungkin timbul selama dan setelah tindakan medis tsb, alternatif tindakan lain dan resikonya serta prognosa tindakan yang dilakukan.</td>
+				</tr>
+				<tr>
+					<td width="2%" style="vertical-align:top;">b.</td>
+					<td width="2%" style="vertical-align:top;"></td>
+					<td width="90%" colspan="5" style="text-align:justify;">Bahwa apa yang telah diterangkan oleh dokter kepada saya telah saya pahami / mengerti sepenuhnya dan kepada saya telah diberikan kesempatan untuk bertanya.</td>
+				</tr>
+				<tr>
+					<td width="2%" style="vertical-align:top;">c.</td>
+					<td width="2%" style="vertical-align:top;"></td>
+					<td width="90%" colspan="5" style="text-align:justify;">Bahwa tindakan medis tersebut juga menggunakan obat - obat dan bahan - bahan kontras yang diperlukan guna memperlancar tindakan.</td>
+				</tr>
+				<tr>
+					<td width="2%" style="vertical-align:top;">d.</td>
+					<td width="2%" style="vertical-align:top;"></td>
+					<td width="90%" colspan="5" style="text-align:justify;">Bahwa saya juga memberikan persetujuan untuk pemberian Anestesi umum dan lokal untuk dapat dilakukan tindakan lokal.</td>
+				</tr>
+				<tr>
+					<td width="2%" style="vertical-align:top;">e.</td>
+					<td width="2%" style="vertical-align:top;"></td>
+					<td width="90%" colspan="5" style="text-align:justify;">Bahwa saya juga memberikan persetujuan untuk tindakan / prosedur tambahan dan pengobatan lebih lanjut, apabila pada waktu tindakan medis pertama diperlukan demi keselamatan jiwa.</td>
+				</tr>
+				<tr>
+					<td width="2%" style="vertical-align:top;">f.</td>
+					<td width="2%" style="vertical-align:top;"></td>
+					<td width="90%" colspan="5" style="text-align:justify;">Bahwa walaupun tindakan medis diatas telah dilaksanakan dengan penanganan yang Profesional, tetap ada kemungkinan untuk tidak memberikan hasil seperti yang diharapkan.</td>
+				</tr>
+				<tr>
+					<td width="2%" style="vertical-align:top;">g.</td>
+					<td width="2%" style="vertical-align:top;"></td>
+					<td width="90%" colspan="5" style="text-align:justify;">Bahwa setiap penggunaan obat / bahan kimia dapat menimbulkan reaksi alergi yang tidak dapat diduga sebelumnya bersifat reaksi ringan sampai berat / mengancam jiwa.</td>
+				</tr>
+				<tr>
+					<td width="2%" style="vertical-align:top;">h.</td>
+					<td width="2%" style="vertical-align:top;"></td>
+					<td width="90%" colspan="5" style="text-align:justify;">Bahwa setiap penggunaan obat berupa vitamin merupakan suatu obat tambahan, yang dalam penggunaanya atas permintaan pasien sendiri serta tanpa paksaan dari pihak manapun.</td>
+				</tr>
+				<tr>
+					<td width="100%" colspan="7" height="5px"></td>
+				</tr>
+				<tr>
+					<td width="100%" colspan="7" style="text-align:justify;">Demikian pernyataan ini saya buat dengan penuh kesadaran dan tanpa paksaan serta tidak akan menuntut Dokter dan atau klinik serta petugas kesehatan lainnya baik secara perdata maupun pidana.</td>
+				</tr>
+				<tr>
+					<td width="100%" colspan="7" height="5px"></td>
+				</tr>
+			</table>
+			<br>
+			<br>
+			<div class="row">
+				<div class="col-md-3" style="">
+				
+
+					<table border="1" width="100%" style="border:1px solid #000 !important;">
+						<?php
+							$bp = explode('_', $assesment['blood_preasure']);
+						?>
+						<tr>
+							<td>BB pre HD</td>
+							<td>:</td>
+							<td><strong><?=$tindakan_hd['berat_awal']?> Kg</strong></td>
+						</tr>
+						<tr>
+							<td>UFG</td>
+							<td>:</td>
+							<td><strong><?=$assesment['uf_goal']?> Liter(s)</strong></td>
+						</tr>
+						<tr>
+							<td>QB</td>
+							<td>:</td>
+							<td><strong><?=$assesment['quick_of_blood']?> ml/Hour</strong></td>
+						</tr>
+						<tr>
+							<td>TD pre HD</td>
+							<td>:</td>
+							<td><strong><?=$bp[0].' / '.$bp[1]?></strong></td>
+						</tr>
+					</table>
+					</br>
+			
+					<table border="1" width="100%" style="border:1px solid #000 !important;">
+						<tr>
+							<td colspan="3" align="center"><b>PERSETUJUAN TRANSFUSI</b></td>
+						</tr>
+						<tr>
+							<td>Golongan Darah</td>
+							<td>:</td>
+							<td>......................................</td>
+						</tr>
+						<tr>
+							<td>Serial Number</td>
+							<td>:</td>
+							<td>1......................................</td>
+						</tr>
+						<tr>
+							<td></td>
+							<td></td>
+							<td>2......................................</td>
+						</tr>
+						<tr>
+							<td>Ukuran</td>
+							<td>:</td>
+							<td>1......................................</td>
+						</tr>
+						<tr>
+							<td></td>
+							<td></td>
+							<td>2......................................</td>
+						</tr>
+						<tr>
+							<td>Exp Date</td>
+							<td>:</td>
+							<td>1......................................</td>
+						</tr>
+						<tr>
+							<td></td>
+							<td></td>
+							<td>2......................................</td>
+						</tr>
+						<tr>
+							<td align="center"><br><br><br><br>( <?=$pasien['nama']?> )<br>Pasien</td>
+							<td></td>
+							<td align="center"><br><br><br><br>(....................)<br>Perawat</td>
+						</tr>
+
+					</table>
+					<div style="font-size:10px; font-style:italic;"><b>* :</b>&nbsp;Jika dibutuhkan anestesi</div>
+
+				</div>
+				<div class="col-md-9">
+					<div class="col-md-12">
+						<div style="text-align:right;">
+						<b>Jakarta, Hari : </b><?=getdayname(date('D', strtotime($tindakan_hd['tanggal'])))?><b> Tgl:</b> <?=date('d M Y', strtotime($tindakan_hd['tanggal']))?> <b>Jam :</b> <?=date('H.i', strtotime($tindakan_hd['tanggal']))?><b> WIB</b>
+					</div>
+					</div>
+					<div style="height:50px; border:0px solid #000; margin-left:10px;">
+						<?php
+							$title = 'Pasien';
+							if($status !== 'Pasien')
+							{
+								if($status === 'Suami Pasien' || $status === 'Istri Pasien' || $status === 'Anak Pasien' || $status === 'Ayah Pasien' || $status === 'Ibu Pasien')
+								{
+									$title = 'Keluarga';
+								}
+								else
+								{
+									$title = 'Wali';
+								}
+							}
+						?>
+					
+					<div style="float:left; width:250px;height:320px;text-align:center;padding:10px 0 0 0;margin-right:195px;border-bottom: 2px dotted #989898;">
+						<h6 class="bold">Disetujui oleh<br>( <?=$title?> )</h6>
+						<div id="sig_setuju"></div>
+						<button id="clear_setuju" class="btn default">Clear</button>
+						<br>
+						<h6 class="bold">( <?= $pj['nama']?> )</h6>
+						<textarea name="signature_setuju" id="signature_setuju" rows="5" cols="50" readonly="" hidden="hidden"></textarea>
+					</div>
+					<div style="float:left; width:250px;height:320px;text-align:center;padding:10px 0 0 0;border-bottom: 2px dotted #989898;">
+						<h6 class="bold">Saksi I<br>(Keluarga Pasien)<br></h6>
+						<div id="sig_saksi"></div>
+						<button id="clear_saksi" class="btn default">Clear</button>
+						<br>
+						<h6 class="bold">Tanda Tangan & Nama Jelas</h6>
+						<textarea name="signature_saksi" id="signature_saksi" rows="5" cols="50" readonly="" hidden></textarea>
+					</div>
+					<div style="float:left; width:250px;height:320px;text-align:center;padding:10px 0 0 0;margin-right:195px;border-bottom: 2px dotted #989898;">
+						<h6 class="bold">Dokter Yang Melakukan Tindakan Medis/<br>Dokter yang memberikan penjelasan</h6>
+						<br>
+						<div id="sig_dokter_medis"></div>
+						<button id="clear_dokter_medis" class="btn default">Clear</button>
+						<br>( <?=$dokter['nama']?> )
+						<textarea name="signature_dokter_medis" id="signature_dokter_medis" rows="5" cols="50" readonly="" hidden="hidden"></textarea>
+					</div>
+					<div style="float:left; width:250px;height:320px;text-align:center;padding:10px 0 0 0;border-bottom: 2px dotted #989898;"><h6 class="bold">Saksi II<br>(Petugas Kesehatan)</h6><br><div id="sig_saksi2"></div><button id="clear_saksi2" class="btn default">Clear</button><br><h6 class="bold">Tanda Tangan & Nama </h6><textarea name="signature_saksi2" id="signature_saksi2" rows="5" cols="50" readonly="" hidden="hidden"></textarea></div>
+					<div style="float:left; width:250px;height:320px;text-align:center;padding:10px 0 0 0;"><h6 class="bold">Dokter Yang Melakukan Anestesi*</h6><br><div id="sig_dokter_anastesi"></div><button id="clear_dokter_anastesi" class="btn default">Clear</button><br><h6 class="bold">Tanda Tangan & Nama Jelas</h6><textarea name="signature_dokter_anastesi" id="signature_dokter_anastesi" rows="5" cols="50" readonly="" hidden="hidden"></textarea></div>
+					
+				</div>				
+				</div>
+			</div><!--tutup row-->
+			
+			
+
+				
+				<div class="form-actions right" align="right">
+					<button type="button"  class="btn green" id="confirm_save" data-msg="Anda yakin akan menyimpan persetujuan tindakan ini?"><i class="fa fa-check"></i> Setujui </button>
+					<button type="submit" id="save" hidden> Simpan </button>
+				</div>
+			</div>
+			
+			<div class="signate">
+				
+			</div>
+		</div>
+		</div><!-- TUTUP Container -->
+	</body>
+	</form>
+
+</html>
+<script src="http://simrhs.com/tanda_tangan/js/signature_pad.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<script src="<?=base_url()?>assets/mb/global/js/signature/jquery.signature.min.js"></script>
+<script src="<?=base_url()?>assets/mb/global/js/signature/jquery.ui.touch-punch.min.js"></script>
+<script src="<?=base_url()?>assets/metronic/global/plugins/bootbox/bootbox.min.js"></script>
+<script src="http://simrhs.com/tanda_tangan/js/signature_pad.js"></script>
+<script src="http://simrhs.com/tanda_tangan/js/app.js"></script>
+<script>
+$(document).ready(function(){
+    var sig = $('#sig_setuju').signature({syncField: '#signature_setuju'});
+
+	$('button#clear_setuju').click(function(e) {
+		sig.signature('clear');
+		e.preventDefault();
+
+	});
+
+	var sig_saksi = $('#sig_saksi').signature({syncField: '#signature_saksi'});
+
+	$('button#clear_saksi').click(function(e) {
+		sig_saksi.signature('clear');
+        e.preventDefault();
+	});
+
+	var sig_dokter_medis = $('#sig_dokter_medis').signature({syncField: '#signature_dokter_medis'});
+
+	$('button#clear_dokter_medis').click(function(e) {
+		sig_dokter_medis.signature('clear');
+        e.preventDefault();
+	});
+
+	var sig_saksi2 = $('#sig_saksi2').signature({syncField: '#signature_saksi2'});
+
+	$('button#clear_saksi2').click(function(e) {
+		sig_saksi2.signature('clear');
+        e.preventDefault();
+	});
+
+	var sig_dokter_anastesi = $('#sig_dokter_anastesi').signature({syncField: '#signature_dokter_anastesi'});
+
+	$('button#clear_dokter_anastesi').click(function(e) {
+		sig_dokter_anastesi.signature('clear');
+        e.preventDefault();
+	});
+
+	$('button#confirm_save').click(function(e){
+		var msg = $(this).data('msg');
+
+		var r = confirm(msg);
+		if(r == true){
+			$('button#save').click();
+		}
+
+        e.preventDefault();
+	});	
+
+});
+
+</script>

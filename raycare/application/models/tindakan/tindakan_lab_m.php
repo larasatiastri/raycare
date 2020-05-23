@@ -1,0 +1,172 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class Tindakan_lab_m extends MY_Model {
+
+	protected $_table        = 'tindakan_lab';
+	protected $_order_by     = 'tanggal';
+	protected $_timestamps   = true;
+
+	// Array of database columns which should be read and sent back to DataTables
+	protected $datatable_columns = array(
+		//column di table  => alias
+		'tindakan_lab.no_pemeriksaan'               => 'no_pemeriksaan',
+		'tindakan_lab.tanggal'          => 'tanggal',
+		'tindakan_lab.tipe_pasien'               => 'tipe_pasien',
+		'tindakan_lab.nama_pasien'      => 'nama_pasien',
+		'tindakan_lab.jenis_kelamin'      => 'jenis_kelamin',
+		'tindakan_lab.tanggal_lahir'      => 'tanggal_lahir',
+		'tindakan_lab.umur_pasien'      => 'umur_pasien',
+		'tindakan_lab.no_telp_pasien'      => 'no_telp_pasien',
+		'tindakan_lab.nama_dokter'      => 'nama_dokter',
+		'tindakan_lab.status'        => 'status',
+		'tindakan_lab.cabang_id'        => 'cabang_id',
+		'tindakan_lab.pasien_id'        => 'pasien_id',
+		'tindakan_lab.dokter_id'        => 'dokter_id',
+		'tindakan_lab.perawat_id'       => 'perawat_id',
+		'tindakan_lab.id'               => 'id',
+
+	);
+
+	public function __construct()
+	{
+		parent::__construct();
+	}
+
+	/**
+	 * [get_datatable description]
+	 * @return [type] [description]
+	 */
+	public function get_datatable($tipe)
+	{	
+		if($tipe == 1){
+			$wheres = array(
+				'status <' => 3
+			);
+		}if($tipe == 2){
+			$wheres = array(
+				'status >=' => 3
+			);
+		}
+		
+		$join_tables = array();
+
+		// get params dari input postnya datatable
+		$params = $this->datatable_param($this->datatable_columns);
+		$params['sort_by'] = $this->_table.'.tanggal';
+		$params['sort_dir'] = 'ASC';
+		// prepare buat total record tanpa filter dan limit
+		// filter = false, limit= false 
+		$this->datatable_prepare($join_tables, $params);
+		$this->db->where($wheres);
+		// dapatkan total row count;
+		$total_records = $this->db->count_all_results();
+		// die(dump($total_records));
+
+		// prepare buat total record filtered/search, 
+		// filter=true, limit=false
+		$this->datatable_prepare($join_tables, $params, true);
+		$this->db->where($wheres);
+		// $this->db->where('left(tanggal, 7) =', $date);
+		// dapatkan total record filtered/search;
+		$total_display_records = $this->db->count_all_results();
+
+		// prepare buat data yg mau di display
+		// filter=true, limit=true
+		$this->datatable_prepare($join_tables, $params, true, true);
+		$this->db->where($wheres);
+		// $this->db->where('left(tanggal, 7) =', $date);
+
+		// tentukan kolom yang mau diselect
+		foreach ($this->datatable_columns as $col => $alias)
+		{
+			// $cols_select[] = $col;
+			$this->db->select($col . ' AS ' . $alias);
+		}
+		
+		//return  result object
+		$result = new stdClass();
+
+		$result->columns               = $this->datatable_columns;
+		$result->total_records         = $total_records;
+		$result->total_display_records = $total_display_records;
+		$result->records               = $this->db->get(); 
+		// die(dump($result->records));
+		return $result; 
+	}
+
+	/**
+	 * [get_datatable_history description]
+	 * @return [type] [description]
+	 */
+	public function get_datatable_history($pasien_id = null, $vaksin_id = null)
+	{	
+		$join1 = array('pasien', $this->_table.'.pasien_id = pasien.id','left');
+		$join2 = array('master_vaksin', $this->_table.'.master_vaksin_id = master_vaksin.id','left');
+		$join3 = array('cabang', $this->_table.'.cabang_id = cabang.id','left');
+		$join4 = array('user a', $this->_table.'.dokter_id = a.id','left');
+		$join5 = array('user b', $this->_table.'.perawat_id = b.id','left');
+		$join_tables = array($join1, $join2, $join3, $join4, $join5);
+
+		// get params dari input postnya datatable
+		$params = $this->datatable_param($this->datatable_columns);
+		$params['sort_by'] = $this->_table.'.tanggal';
+		$params['sort_dir'] = 'desc';
+		// prepare buat total record tanpa filter dan limit
+		// filter = false, limit= false 
+		$this->datatable_prepare($join_tables, $params);
+			$this->db->where($this->_table.'.pasien_id', $pasien_id);
+			$this->db->where($this->_table.'.master_vaksin_id', $vaksin_id);
+		// dapatkan total row count;
+		$total_records = $this->db->count_all_results();
+		// die(dump($total_records));
+
+		// prepare buat total record filtered/search, 
+		// filter=true, limit=false
+		$this->datatable_prepare($join_tables, $params, true);
+		// $this->db->where('user_id', $user_id);
+			$this->db->where($this->_table.'.pasien_id', $pasien_id);
+			$this->db->where($this->_table.'.master_vaksin_id', $vaksin_id);
+		// dapatkan total record filtered/search;
+		$total_display_records = $this->db->count_all_results();
+
+		// prepare buat data yg mau di display
+		// filter=true, limit=true
+		$this->datatable_prepare($join_tables, $params, true, true);
+		// $this->db->where('user_id', $user_id);
+			$this->db->where($this->_table.'.pasien_id', $pasien_id);
+			$this->db->where($this->_table.'.master_vaksin_id', $vaksin_id);
+
+		// tentukan kolom yang mau diselect
+		foreach ($this->datatable_columns as $col => $alias)
+		{
+			// $cols_select[] = $col;
+			$this->db->select($col . ' AS ' . $alias);
+		}
+		
+		//return  result object
+		$result = new stdClass();
+
+		$result->columns               = $this->datatable_columns;
+		$result->total_records         = $total_records;
+		$result->total_display_records = $total_display_records;
+		$result->records               = $this->db->get(); 
+		// die(dump($result->records));
+		return $result; 
+	}
+
+	public function get_max_id()
+	{
+		$format = "SELECT MAX(RIGHT(`id`,4)) AS max_id FROM `tindakan_lab` WHERE SUBSTR(`id`,4,7) = DATE_FORMAT(NOW(), '%m-%Y');";	
+		return $this->db->query($format);
+	}
+
+	public function get_data($transaksi_id)
+	{
+		$format = "SELECT pembayaran_tipe, nomor_tipe, SUM(total) as total FROM `tindakan_lab` WHERE transaksi_id = '$transaksi_id' GROUP BY pembayaran_tipe, nomor_tipe";
+		return $this->db->query($format);
+		
+	}
+}
+
+/* End of file Permintaan_biaya.php */
+/* Location: ./application/models/keuangan/Permintaan_biaya.php */

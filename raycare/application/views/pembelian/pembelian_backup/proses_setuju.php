@@ -1,0 +1,816 @@
+<?php
+	$form_attr = array(
+	    "id"            => "form_add_pembelian", 
+	    "name"          => "form_add_pembelian", 
+	    "autocomplete"  => "off", 
+	    "class"         => "form-horizontal",
+	    "role"			=> "form"
+    );
+    
+    $hidden = array(
+        "command"   => "proses",
+        "pembelian_id" => $pk_value
+    );
+
+    echo form_open(base_url()."pembelian/pembelian/save", $form_attr, $hidden);
+    $form_alert_danger  = translate('Terdapat beberapa kesalahan. Silahkan cek kembali.', $this->session->userdata('language'));
+	$form_alert_success = translate('Data yang diinputkan akan tersimpan.', $this->session->userdata('language'));
+
+	$btn_search        = '<div class="text-center"><a class="btn btn-primary search-item" data-original-title="Search Item" data-status-row="item_row_add" title="'.translate('Pilih Item', $this->session->userdata('language')).'"><i class="fa fa-search"></i></a></div>';
+	$btn_search_jumlah = '';
+	
+	if($form_data_detail != '')
+	{
+		$i = 0;
+		$item_row_template_db = '';
+		$total = 0;
+		$diskon = 0;
+		$pph = 0;
+		$grand_total = 0;
+		$hidden_btn = '';
+		if($form_data[0]['is_single_kirim'] == 1) $hidden_btn = 'hidden';
+		foreach ($form_data_detail as $detail) 
+		{
+			$btn_del_db = '<div class="text-center"><button class="btn btn-sm red-intense del-this-db" data-confirm="'.translate('Anda yakin akan menghapus item ini?', $this->session->userdata('language')).'" data-index="'.$i.'" data-id="'.$detail['id'].'" title="Delete Purchase Item"><i class="fa fa-times"></i></button></div>';
+			$btn_jumlah_db        = '<a class="btn blue-chambray add-jumlah '.$hidden_btn.'" href="'.base_url().'pembelian/pembelian/edit_jumlah_edit/item_row_'.$i.'/'.$detail['id'].'" data-original-title="Tambah Jumlah" title="'.translate('Tambah Jumlah', $this->session->userdata('language')).'" data-toggle="modal" data-target="#popup_modal_jumlah" ><i class="fa fa-truck"></i></a>';
+			$data_satuan = $this->item_satuan_m->get_by(array('item_id' => $detail['item_id']));
+
+
+			$style = '';
+
+			$attrs_id_db = array ( 
+			    'id'       => 'items_id_'.$i,
+			    'type'     => 'hidden',
+			    'name'     => 'items['.$i.'][id]',
+			    'class'    => 'form-control',
+			    'readonly' => 'readonly',
+			    'value' => $detail['id'],
+			);
+
+			$attrs_item_id_db = array ( 
+			    'id'       => 'items_item_id_'.$i,
+			    'type'     => 'hidden',
+			    'name'     => 'items['.$i.'][item_id]',
+			    'class'    => 'form-control',
+			    'readonly' => 'readonly',
+			    'value' => $detail['item_id'],
+			);
+
+			$attrs_item_kode_db = array (
+			    'id'          => 'items_kode_'.$i,
+			    'name'        => 'items['.$i.'][item_kode]',
+			    'class'       => 'form-control hidden',
+			    'readonly'    => 'readonly',
+			    'value' => $detail['kode'],
+			);
+
+			$attrs_item_nama_db = array(
+			    'id'          => 'items_nama_'.$i,
+			    'name'        => 'items['.$i.'][item_nama]',
+			    'class'       => 'form-control hidden',
+			    'readonly'    => 'readonly',
+			    'value' => $detail['nama'],
+			);
+
+			$attrs_item_syarat_db = array(
+			    'id'          => 'items_syarat_'.$i,
+			    'name'        => 'items['.$i.'][item_syarat]',
+			    'class'       => 'form-control hidden',
+			    'readonly'    => 'readonly',
+			    'value' => $detail['item_id'],
+			);
+
+			$attrs_item_harga_db = array(
+			    'id'          => 'items_harga_'.$i,
+			    'name'        => 'items['.$i.'][item_harga]',
+			    'class'       => 'form-control hidden',
+			    'readonly'    => 'readonly',
+			    'value' => $detail['harga_beli'],
+			);
+
+			$attrs_item_diskon_db = array(
+			    'id'          => 'items_diskon_'.$i,
+			    'type'		=> 'number',
+			    'name'        => 'items['.$i.'][item_diskon]',
+			    'class'       => 'form-control',
+			    'value' => $detail['diskon'],
+			    'max'	=> 100,
+			    'min'	=> 0,
+			);
+
+			$attrs_stok_db = array(
+			    'id'    => 'items_stok_'.$i,
+			    'name'  => 'items['.$i.'][stok]', 
+			    'type'  => 'number',
+			    'min'   => 0,
+			    'class' => 'form-control text-right',
+			    'style' => 'width:80px;',
+			    'value' => 1,
+			    'value' => $detail['item_id'],
+			);
+
+			$attrs_jumlah_db = array(
+			    'id'    => 'items_jumlah_'.$i,
+			    'name'  => 'items['.$i.'][jumlah]', 
+			    'type'  => 'number',
+			    'min'   => 0,
+			    'max'   => $detail['jumlah_disetujui'],
+			    'class' => 'form-control text-right',
+			    'value' => $detail['jumlah_pesan'],
+			);
+			$attrs_jumlah_setuju_db = array(
+			    'id'    => 'items_jumlah_'.$i,
+			    'name'  => 'items['.$i.'][jumlah_setujui]', 
+			    'type'  => 'hidden',
+			    'min'   => 0,
+			    'class' => 'form-control text-right',
+			    'value' => $detail['jumlah_disetujui'],
+			);
+
+			$attrs_item_total_db = array(
+			    'id'          => 'items_total_'.$i,
+			    'name'        => 'items['.$i.'][item_total]',
+			    'class'       => 'form-control sub_total hidden',
+			    'readonly'    => 'readonly',
+			    'value' => ($detail['jumlah_disetujui']*$detail['harga_beli']) - (($detail['diskon']/100)*$detail['harga_beli']),
+
+			);
+
+			$attrs_item_is_active_db = array(
+			    'id'          => 'items_is_active_'.$i,
+			    'name'        => 'items['.$i.'][is_active]',
+			    'class'       => 'form-control hidden',
+			    'readonly'    => 'readonly',
+			    'value' => 1,
+
+			);
+
+			$attrs_item_satuan_db = array(
+			    'id'          => 'items_satuan_'.$i,
+			    'name'        => 'items['.$i.'][item_satuan]',
+			    'class'       => 'form-control hidden',
+			    'readonly'    => 'readonly',
+			    'value' => $detail['item_satuan_id'],
+			);
+
+			$satuan_option = array(
+				'' => 'Pilih..'
+			);
+
+			foreach ($data_satuan as $satuan) {
+				$satuan_option[$satuan->id] = $satuan->nama;
+			}
+
+			$total = $total + (($detail['harga_beli'] - (($detail['diskon']/100)*$detail['harga_beli'])) * $detail['jumlah_pesan']);
+
+			$satuan_item = $this->item_satuan_m->get($detail['item_satuan_id']);			
+
+			$item_cols_db = array(// style="width:156px;
+				'item_kode'          => '<label class="control-label" name="items['.$i.'][item_kode]" style="text-align : left !important; width : 150px !important;">'.$detail['kode'].'</label>'.form_input($attrs_item_id_db).form_input($attrs_item_kode_db),
+				'item_name'          => '<label class="control-label" name="items['.$i.'][item_nama]">'.$detail['nama'].'</label>'.form_input($attrs_item_nama_db).form_input($attrs_id_db).'<div id="detail_kirim"></div>',
+				'item_satuan'        => '<label class="control-label" name="items['.$i.'][item_satuan]">'.$satuan_item->nama.'</label>'.form_input($attrs_item_satuan_db).form_input($attrs_item_is_active_db),
+				'item_harga'         => '<div class="text-right"><label class="control-label" name="items['.$i.'][item_harga]">'.formatrupiah($detail['harga_beli']).'</label></div>'.form_input($attrs_item_harga_db),
+				'item_diskon'        => form_input($attrs_item_diskon_db),
+				'item_jumlah_setujui'        => '<label class="control-label" name="items['.$i.'][jumlah_setujui]">'.$detail['jumlah_disetujui'].' </label>'.form_input($attrs_jumlah_setuju_db),
+				'item_jumlah'        => '<div class="input-group">'.form_input($attrs_jumlah_db).'<span class="input-group-btn">'.$btn_jumlah_db.'</span></div>',
+				'item_total'         => '<div class="text-right"><label class="control-label" name="items['.$i.'][item_sub_total]">'.formatrupiah(($detail['harga_beli'] - (($detail['diskon']/100)*$detail['harga_beli'])) * $detail['jumlah_pesan']).'</label>'.form_input($attrs_item_total_db).'</div>',
+			);
+
+			$item_row_template_db .=  '<tr id="item_row_'.$i.'" class="table_item_beli" '.$style.'><td>' . implode('</td><td>', $item_cols_db) . '</td></tr>';
+
+			$i++;
+		}
+	} 
+	else
+	{
+		$i = 0;
+		$item_row_template_db = '';
+		$total = 0;
+		$diskon = 0;
+		$pph = 0;
+		$grand_total = 0;
+	}
+
+
+	$btn_del           = '<div class="text-center"><button class="btn btn-sm red-intense del-this" title="Delete Purchase Item"><i class="fa fa-times"></i></button></div>';
+
+	$attrs_id_db = array ( 
+	    'id'       => 'items_id_{0}',
+	    'type'     => 'hidden',
+	    'name'     => 'items[{0}][id]',
+	    'class'    => 'form-control',
+	    'readonly' => 'readonly',
+	    'value' => '',
+	);
+
+	$attrs_item_id  = array ( 
+	    'id'       => 'items_item_id_{0}',
+	    'type'     => 'hidden',
+	    'name'     => 'items[{0}][item_id]',
+	    'class'    => 'form-control',
+	    'readonly' => 'readonly',
+	);
+
+	$attrs_item_kode = array (
+	    'id'          => 'items_kode_{0}',
+	    'name'        => 'items[{0}][item_kode]',
+	    'class'       => 'form-control hidden',
+	    'readonly'    => 'readonly',
+	);
+
+	$attrs_item_nama = array(
+	    'id'          => 'items_nama_{0}',
+	    'name'        => 'items[{0}][item_nama]',
+	    'class'       => 'form-control hidden',
+	    'readonly'    => 'readonly',
+	);
+
+	$attrs_item_syarat = array(
+	    'id'          => 'items_syarat_{0}',
+	    'name'        => 'items[{0}][item_syarat]',
+	    'class'       => 'form-control hidden',
+	    'readonly'    => 'readonly',
+	);
+
+	$attrs_item_harga = array(
+	    'id'          => 'items_harga_{0}',
+	    'name'        => 'items[{0}][item_harga]',
+	    'class'       => 'form-control hidden',
+	    'readonly'    => 'readonly',
+	);
+
+	$attrs_item_diskon = array(
+	    'id'          => 'items_diskon_{0}',
+	    'name'        => 'items[{0}][item_diskon]',
+	    'class'       => 'form-control hidden',
+	    'readonly'    => 'readonly',
+	);
+
+	$attrs_stok = array(
+	    'id'    => 'items_stok_{0}',
+	    'name'  => 'items[{0}][stok]', 
+	    'type'  => 'number',
+	    'min'   => 0,
+	    'class' => 'form-control text-right',
+	    'style' => 'width:80px;',
+	    'value' => 1,
+	);
+
+	$attrs_jumlah = array(
+	    'id'    => 'items_jumlah_{0}',
+	    'name'  => 'items[{0}][jumlah]', 
+	    'type'  => 'number',
+	    'min'   => 0,
+	    'class' => 'form-control text-right'
+	);
+
+	$attrs_item_total = array(
+	    'id'          => 'items_total_{0}',
+	    'name'        => 'items[{0}][item_total]',
+	    'class'       => 'form-control hidden',
+	    'readonly'    => 'readonly',
+	);
+
+	$attrs_item_is_active = array(
+	    'id'          => 'items_is_active_{0}',
+	    'name'        => 'items[{0}][is_active]',
+	    'class'       => 'form-control hidden',
+	    'readonly'    => 'readonly',
+	    'value' => 1,
+
+	);
+
+	$satuan_option = array(
+		'' => 'Pilih..'
+	);
+
+	$item_cols = array(// style="width:156px;
+		'item_kode'          => '<label class="control-label" name="items[{0}][item_kode]" style="text-align : left !important; width : 150px !important;"></label>'.form_input($attrs_item_id).form_input($attrs_item_kode),
+		'item_name'          => '<label class="control-label" name="items[{0}][item_nama]"></label>'.form_input($attrs_item_nama).form_input($attrs_id_db),
+		'item_satuan'        => form_dropdown('items[{0}][satuan]', $satuan_option, "", "id=\"items_satuan_{0}\" class=\"form-control\""),
+		'item_harga'         => '<div class="text-right"><label class="control-label" name="items[{0}][item_harga]"></label></div>'.form_input($attrs_item_harga),
+		'item_diskon'        => '<label class="control-label" name="items[{0}][item_diskon]"></label>'.form_input($attrs_item_diskon),
+		'item_jumlah'        => form_input($attrs_jumlah),
+		'item_total'         => '<label class="control-label" name="items[{0}][item_total]"></label>'.form_input($attrs_item_total),
+	);
+
+	$item_row_template =  '<tr id="item_row_{0}" class="table_item_beli"><td>' . implode('</td><td>', $item_cols) . '</td></tr>';
+
+	$msg = translate("Apakah anda yakin akan memproses PO yang telah disetujui ini?",$this->session->userdata("language"));
+	$msg_draft= translate("Apakah and yakin akan menyimpan PO ini ke Draft?", $this->session->userdata("language"));
+
+	if($form_data[0]['tipe_customer'] == 1)
+	{
+		$data_customer = $this->penerima_cabang_m->get($form_data[0]['customer_id']);
+		$customer_alamat = $this->cabang_alamat_m->get_alamat_lengkap($form_data[0]['customer_id']);
+																	// die(dump($customer_alamat));
+
+		$customer_email = $this->cabang_sosmed_m->get_by(array('cabang_id' => $form_data[0]['customer_id'], 'tipe' => 1, 'is_active' => 1), true);
+	}
+
+	$data_penawaran = $this->pembelian_penawaran_m->get_by(array('pembelian_id' => $pk_value, 'is_active' => 1));
+
+	$supplier_email = $this->supplier_email_m->get_by(array('supplier_id' => $form_data[0]['id'], 'is_active' => 1, 'is_primary' => 1), true);
+
+	$email_supp = (count($supplier_email) != 0)?$supplier_email->email:'-';
+
+?>
+<div class="portlet light">
+	<div class="portlet-title">
+		<div class="caption">
+			<i class="fa fa-check font-blue-sharp"></i>
+			<span class="caption font-blue-sharp bold uppercase"><?=translate("Proses Pembelian", $this->session->userdata("language"))?></span>
+		</div>
+		<div class="actions">
+			<a class="btn btn-default btn-circle" href="javascript:history.go(-1)"><i class="fa fa-chevron-left"></i> <?=translate("Kembali", $this->session->userdata("language"))?></a>
+			<input type="hidden" id="jml_baris" name="jml_baris" value="<?=$i?>">
+			<a id="confirm_save" class="btn btn-primary btn-circle" href="#" data-confirm="<?=$msg?>" data-toggle="modal"><i class="fa fa-check"></i> <?=translate("Proses", $this->session->userdata("language"))?></a>
+	        <button type="submit" id="save" class="btn default hidden" ><?=translate("Simpan", $this->session->userdata("language"))?></button>
+	        <a id="confirm_save_draft" class="btn btn-primary btn-circle hidden" href="#" data-confirm="<?=$msg_draft?>" data-toggle="modal"><i class="fa fa-check"></i> <?=translate("Simpan ke Draft", $this->session->userdata("language"))?></a>
+
+	    </div>
+	</div>
+	<div class="note note-danger note-bordered">
+		<p>
+			 NOTE: Jumlah pesan dan subtotal pesan akan mengikuti jumlah yang sudah disetujui.
+		</p>
+	</div>
+	<div class="portlet-body form">
+		<div class="form-body">
+			<div class="alert alert-danger display-hide">
+		        <button class="close" data-close="alert"></button>
+		        <?=$form_alert_danger?>
+		    </div>
+		    <div class="alert alert-success display-hide">
+		        <button class="close" data-close="alert"></button>
+		        <?=$form_alert_success?>
+		    </div>
+			<div class="row">
+				<div class="col-md-3">
+					<div class="portlet">
+						<div class="portlet-body form">
+							<div class="tabbable-custom nav-justified">
+								<ul class="nav nav-tabs nav-justified">
+									<li class="active">
+										<a href="#tab_supplier" data-toggle="tab">
+										Supplier </a>
+									</li>
+									<li>
+										<a href="#tab_penerima" data-toggle="tab">
+										Penerima </a>
+									</li>
+									<li>
+										<a href="#tab_info_pembelian" data-toggle="tab">
+										Info Pembelian </a>
+									</li>
+								</ul>
+								<div class="tab-content">
+									<div class="tab-pane active" id="tab_supplier">
+										<div class="form-body">
+											<div class="form-group">
+												<label class="col-md-12"><?=translate("Tipe", $this->session->userdata("language"))?> :</label>
+												<?php
+													$tipe = 'Dalam Negeri';
+													if($form_data[0]['tipe_supplier'] == 2)
+													{
+														$tipe = 'Luar Negeri';
+													}
+												?>
+												<label class="col-md-12"><?=$tipe?></label>
+												
+											</div>
+											<div class="form-group">
+												<label class="col-md-12"><?=translate("Supplier", $this->session->userdata("language"))?> :</label>
+												<label class="col-md-12 bold"><?=$form_data[0]['nama'].' ['.$form_data[0]['kode'].']'?> </label>
+												
+											</div>
+											
+											<div class="form-group">
+												<label class="col-md-12"><?=translate("Kontak", $this->session->userdata("language"))?> :</label>
+												<div class="col-md-12">
+													<?php
+														$kontak_supplier = array(
+															"id"			=> "kontak_supplier",
+															"name"			=> "kontak_supplier",
+															"autofocus"			=> true,
+															"class"			=> "form-control",
+															"placeholder"	=> translate("Kontak", $this->session->userdata("language")),
+															"style"			=> "background-color: transparent;border: 0px solid;",
+															"readonly"		=> "readonly",
+															"value"			=> $form_data[0]['no_telp']
+														);
+														echo form_input($kontak_supplier);
+													?>
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-md-12"><?=translate("Alamat", $this->session->userdata("language"))?> :</label>
+												<div class="col-md-12">
+													<?php
+														$alamat_supplier = array(
+															"id"			=> "alamat_supplier",
+															"name"			=> "alamat_supplier",
+															"rows"			=> 3,
+															"autofocus"		=> true,
+															"class"			=> "form-control",
+															"placeholder"	=> translate("Alamat", $this->session->userdata("language")),
+															"style"			=> "background-color: transparent;border: 0px solid;",
+															"readonly"		=> "readonly",
+															"value"			=> $form_data[0]['alamat'].', '.$form_data[0]['rt_rw'].', '.$form_data[0]['kelurahan'].', '.$form_data[0]['kecamatan'].', '.$form_data[0]['kota'].', '.$form_data[0]['propinsi'].', Indonesia',
+														);
+														echo form_textarea($alamat_supplier);
+													?>
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-md-12"><?=translate("Email", $this->session->userdata("language"))?> :</label>
+												<div class="col-md-12">
+													<?php
+														$email_supplier = array(
+															"id"			=> "email_supplier",
+															"name"			=> "email_supplier",
+															"autofocus"			=> true,
+															"class"			=> "form-control",
+															"placeholder"	=> translate("Email", $this->session->userdata("language")),
+															"style"			=> "background-color: transparent;border: 0px solid;",
+															"readonly"		=> "readonly"
+														);
+														echo form_input($email_supplier);
+													?>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="tab-pane" id="tab_penerima">
+										<div class="form-body">
+											<div class="form-group">
+												<label class="col-md-12"><?=translate("Tipe", $this->session->userdata("language"))?> :</label>
+												<?php
+													$tipe_customer = 'Internal';
+													if($form_data[0]['tipe_customer'] == 2)
+													{
+														$tipe_customer = 'Eksternal';
+													}
+												?>
+												<label class="col-md-12"><?=$tipe_customer?></label>
+											</div>
+											<div class="form-group">
+												<label class="col-md-12"><?=translate("Ditujukan ke", $this->session->userdata("language"))?> :</label>
+												<label class="col-md-12 bold"><?=$data_customer->nama?></label>
+
+											</div>
+											<div class="form-group">
+												<label class="col-md-12"><?=translate("Kontak", $this->session->userdata("language"))?> :</label>
+												<div class="col-md-12">
+													<?php
+														$kontak_penerima = array(
+															"id"			=> "kontak_penerima",
+															"name"			=> "kontak_penerima",
+															"autofocus"			=> true,
+															"class"			=> "form-control",
+															"placeholder"	=> translate("Kontak", $this->session->userdata("language")),
+															"style"			=> "background-color: transparent;border: 0px solid;",
+															"readonly"		=> "readonly",
+															'value'			=> $data_customer->penanggung_jawab
+														);
+														echo form_input($kontak_penerima);
+													?>
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-md-12"><?=translate("Alamat", $this->session->userdata("language"))?> :</label>
+												<div class="col-md-12">
+													<?php
+														$alamat_penerima = array(
+															"id"			=> "alamat_penerima",
+															"name"			=> "alamat_penerima",
+															"rows"			=> 3,
+															"autofocus"			=> true,
+															"class"			=> "form-control",
+															"placeholder"	=> translate("Alamat", $this->session->userdata("language")),
+															"style"			=> "background-color: transparent;border: 0px solid;",
+															"readonly"		=> "readonly",
+															'value'			=> $customer_alamat[0]['alamat'].', '.$customer_alamat[0]['nama_kelurahan'].', '.$customer_alamat[0]['kecamatan'].','.$customer_alamat[0]['kabkot'].', '.$customer_alamat[0]['propinsi']
+														);
+														echo form_textarea($alamat_penerima);
+													?>
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-md-12"><?=translate("Email", $this->session->userdata("language"))?> :</label>
+												<div class="col-md-12">
+													<?php
+														$email_penerima = array(
+															"id"			=> "email_penerima",
+															"name"			=> "email_penerima",
+															"autofocus"			=> true,
+															"class"			=> "form-control",
+															"placeholder"	=> translate("Email", $this->session->userdata("language")),
+															"style"			=> "background-color: transparent;border: 0px solid;",
+															"readonly"		=> "readonly",
+															'value'			=> $customer_email->url
+														);
+														echo form_input($email_penerima);
+													?>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="tab-pane" id="tab_info_pembelian">
+										<div class="form-body">
+											<div class="form-group">
+												<label class="col-md-12"><?=translate("Tanggal Pesan", $this->session->userdata("language"))?> :</label>
+												<label class="col-md-12"><?=date('d M Y', strtotime($form_data[0]['tanggal_pesan']))?></label>
+												
+											</div>
+											<div class="form-group">
+												<label class="col-md-12"><?=translate("Pengiriman Satu Tanggal", $this->session->userdata("language"))?> :</label>
+												<?php 
+													$check_ya = '';
+													$hidden = '';
+
+													if($form_data[0]['is_single_kirim'] == 1){
+														$check_ya = 'Ya';
+														$hidden = '';
+													}if($form_data[0]['is_single_kirim'] == 0){
+														$check_ya = 'Tidak';
+														$hidden = 'hidden';
+													}
+												?>
+												<label class="col-md-12"><?=$check_ya?></label>
+											</div>
+											<div class="form-group <?=$hidden?>" id="tgl_kirim">
+												<label class="col-md-12"><?=translate("Tanggal Kirim", $this->session->userdata("language"))?> :</label>
+												<label class="col-md-12"><?=date('d M Y', strtotime($form_data[0]['tanggal_kirim']))?></label>
+												
+											</div>
+											<div class="form-group">
+												<label class="col-md-12"><?=translate("Tanggal Kadaluarsa", $this->session->userdata("language"))?> :</label>
+												<label class="col-md-12"><?=date('d M Y', strtotime($form_data[0]['tanggal_kadaluarsa']))?></label>
+											</div>
+												
+											<div class="form-group">
+												<label class="col-md-12"><?=translate("Garansi", $this->session->userdata("language"))?> :</label>
+												<label class="col-md-12"><?=($form_data[0]['tanggal_kirim'] != '1970-01-01')?date('d M Y', strtotime($form_data[0]['tanggal_kirim'])):'-'?></label>
+												
+
+											</div>
+											<?php
+												$lama_tempo = ($tipe_bayar[0]['lama_tempo'] != '')?$tipe_bayar[0]['lama_tempo'].' Hari':'';
+											?>
+											<div class="form-group">
+												<label class="col-md-12"><?=translate('Tipe Pembayaran', $this->session->userdata('language'))?> :</label>
+												<label class="col-md-12"><?=$tipe_bayar[0]['nama'].' '.$lama_tempo?></label>
+												
+											</div>
+											<div class="form-group">
+												<label class="col-md-12"><?=translate("Keterangan", $this->session->userdata("language"))?> :</label>
+												<label class="col-md-12"><?=($form_data[0]['keterangan'] != '')?$form_data[0]['keterangan']:'-'?></label>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							
+						</div>
+					</div>
+					<div class="portlet light bordered">
+						<div class="portlet-title">
+							<div class="caption"><?=translate("Penawaran", $this->session->userdata("language"))?></div>						
+						</div>
+						<div class="portlet-body table-scrollable">
+							<span id="tpl_penawaran_row" class="hidden"><?=htmlentities($item_row_template_penawaran)?></span>
+							<table class="table table-striped table-bordered table-hover" id="table_penawaran">
+								<thead>
+									<tr>
+										<th class="text-center" width="100%"><?=translate("Penawaran", $this->session->userdata("language"))?> </th>	
+									</tr>
+								</thead>
+								<tbody>
+									<?php
+										if($data_penawaran)
+										{
+											$data_penawaran = object_to_array($data_penawaran);
+											foreach ($data_penawaran as $penawaran)
+											{
+												?>
+												<tr>
+													<td><a target="_blank" href="<?=base_url()?>assets/mb/pages/pembelian/pembelian/doc/penawaran/<?=$pk_value?>/<?=$penawaran['id']?>/<?=$penawaran['url']?>"><?=($penawaran['nomor_penawaran'] != '')?$penawaran['nomor_penawaran']:$penawaran['url']?></a></td>
+												</tr>
+												<?php
+											}
+										}
+									?>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+				
+				<div class="col-md-9">
+					<div class="portlet light bordered">
+						<div class="portlet-title">
+							<div class="caption">
+								<span class="caption-subject"><?=translate("Detail Item", $this->session->userdata("language"))?></span>
+							</div>
+						</div>
+						<div class="portlet-body">
+							<div class="table-scrollable">
+							<table class="table table-striped table-bordered table-hover" id="table_detail_pembelian">
+								<thead>
+									<tr>
+										<th class="text-center" style="width : 20px !important;"><?=translate("Kode", $this->session->userdata("language"))?> </th>
+										<th class="text-center"style="width : 200px !important;"><?=translate("Nama", $this->session->userdata("language"))?> </th>
+										<th class="text-center"style="width : 150px !important;"><?=translate("Satuan", $this->session->userdata("language"))?> </th>
+										<th class="text-center"style="width : 120px !important;"><?=translate("Harga Sistem", $this->session->userdata("language"))?> </th>
+										<th class="text-center"><?=translate("Diskon", $this->session->userdata("language"))?> </th>
+										<th class="text-center" style="width : 150px !important;"><?=translate("Jml Setuju", $this->session->userdata("language"))?> </th>
+										<th class="text-center" style="width : 150px !important;"><?=translate("Jml Pesan", $this->session->userdata("language"))?> </th>
+										<th class="text-center"style="width : 250px !important;"><?=translate("Sub Total", $this->session->userdata("language"))?> </th>
+									</tr>
+								</thead>
+								<tbody>
+									<?php
+                                    	if(count($item_cols_db) != 0)
+                                    	{
+                                    		echo $item_row_template_db;
+                                    	}
+                                    
+									?>
+								</tbody>
+								<?php
+									$diskon = ($form_data[0]['diskon']/100)*$total;
+									$biaya_tambahan = $form_data[0]['biaya_tambahan'];
+									$grand_total = ($total - $diskon);
+									$pph = ($form_data[0]['pph']/100) * $grand_total;
+									$grand_total_after_tax = ($total - $diskon) + $pph;
+									$grand_total_non_biaya = ($total - $diskon) + $pph +$biaya_tambahan;
+								?>
+								<tfoot>
+									<tr>
+										<td colspan="7" class="text-right bold">Total</td>
+										<td><div class="text-right bold" id="total"><?=formatrupiah($total)?></div></td>
+									</tr>
+									<tr>
+										<td colspan="6" class="text-right bold">Diskon(%)</td>
+										<td><div class="input-group col-md-12">
+												<input class="form-control text-right" min="0" max="100" id="disk_angka" name="disk_angka" value="<?=$form_data[0]['diskon']?>">
+												<span class="input-group-addon">
+													&nbsp;%&nbsp;
+												</span>
+											</div></td>
+										<td><div class="input-group col-md-12">
+												<span class="input-group-addon">
+													&nbsp;Rp&nbsp;
+												</span>
+												<input class="form-control text-right" id="disk_hidden" name="disk_hidden" value="<?=($form_data[0]['diskon'] / 100) * $total?>">
+											</div></td>
+									</tr>
+									<tr>
+										<td colspan="7" class="text-right bold">Total Setelah Diskon</td>
+										<td><div class="text-right bold"><?=formatrupiah($grand_total)?></div></td>
+									</tr>
+									<tr>
+										<td colspan="6" class="text-right bold">PPN(%)</td>
+										<td class="text-right"><?=$form_data[0]['pph']?> %</td>
+										<td class="text-right"><?=formatrupiah(($form_data[0]['pph']/100)*$grand_total)?></td>
+									</tr>
+									<tr>
+										<td colspan="7" class="text-right bold">Total Setelah PPN</td>
+										<td><div class="text-right bold"><?=formatrupiah($grand_total_after_tax)?></div></td>
+									</tr>
+
+									
+									<tr>
+										<td colspan="7" class="text-right bold">Grand Total PO</td>
+										<td class="text-right bold" id="grand_tot"><?=formatrupiah($grand_total_non_biaya)?></td>
+
+									</tr>
+									<tr>
+										<td colspan="6" class="text-right bold">Biaya Tambahan<div class="hidden" id="biaya_tambahan"></div></td>
+										<td >
+											<a class="btn blue-chambray add-biaya" title="<?=translate('Tambah Biaya', $this->session->userdata('language'))?>" href="<?=base_url()?>pembelian/pembelian/edit_biaya/<?=$pk_value?>" data-toggle="modal" data-target="#modal_biaya">
+												<i class="fa fa-edit"></i>
+											</a>
+										</td>
+										<td colspan="2">
+											<div class="input-group col-md-12">
+												<span class="input-group-addon">
+													&nbsp;Rp&nbsp;
+												</span>
+												<input class="form-control text-right" id="biaya_tambahan" name="biaya_tambahan" value="<?=$form_data[0]['biaya_tambahan']?>">
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<td colspan="7" class="text-right bold">Grand Total Setelah Biaya</td>
+										<td class="text-right bold"><?=formatrupiah($grand_total_non_biaya)?>
+											
+												<input type="hidden" class="form-control text-right" value="<?=$form_data[0]['grand_total']?>" id="grand_total_biaya_hidden" name="grand_total_biaya_hidden">
+												<input class="form-control text-right hidden" readonly value="<?=formattanparupiah($form_data[0]['grand_total'])?>" id="grand_total_biaya" name="grand_total_biaya">
+										</td>
+									</tr>
+									<tr>
+										<td colspan="6" class="text-right bold">DP(%)</td>
+										<td class="text-right"><?=$form_data[0]['dp']?> %</td>
+										<td class="text-right"><?=formatrupiah(($form_data[0]['dp']/100)*$total)?></td>
+									</tr>
+									<tr class="hidden">
+										<td colspan="7" class="text-right bold">Sisa Bayar</td>
+										<td class="text-right bold"><?=formatrupiah($form_data[0]['sisa_bayar'])?></td>
+									</tr>
+								</tfoot>
+							</table>
+
+							<input class="form-control hidden" readonly value="<?=$total?>" id="tot_hidden" name="tot_hidden">
+							<input class="form-control hidden" id="ppn_hidden" name="ppn_hidden" value="<?=$form_data[0]['pph']?>">
+							
+							<input class="form-control hidden" id="biaya_tambah_hidden" name="biaya_tambah_hidden" value="<?=$form_data[0]['biaya_tambahan']?>">
+
+							<input class="form-control hidden" id="grand_tot_hidden" name="grand_tot_hidden" value="<?=$grand_total?>">
+							<input class="form-control hidden" id="depe" name="depe" value="<?=$form_data[0]['dp']?>">
+							<input class="form-control hidden" id="sisa_nya" name="sisa_nya" value="<?=$grand_total-$form_data[0]['dp']?>">
+						</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-9">
+					<div class="portlet light bordered">
+						<div class="portlet-title">
+							<div class="caption">
+								<span class="caption-subject"><?=translate("Detail Pengiriman", $this->session->userdata("language"))?></span>
+							</div>
+						</div>
+						<div class="portlet-body">
+							<div class="form-body">
+							<?php 
+								$data_pengiriman = $this->pembelian_detail_tanggal_kirim_m->get_tanggal_kirim($pk_value);
+
+								$idx = 1;
+								foreach ($data_pengiriman as $key => $data_kirim){
+							?>
+								
+									<table class="table table-striped table-bordered table-hover" >
+									<thead>
+										<tr>
+											<th colspan="4"><?=date('d M Y', strtotime($data_kirim['tanggal_kirim']))?></th>
+										</tr>
+									</thead>
+									<tbody>
+								<?php
+									$data_kirim_detail = $this->pembelian_detail_tanggal_kirim_m->get_tanggal_kirim_detail($pk_value, $data_kirim['tanggal_kirim']);
+
+									$idy = a;
+									foreach ($data_kirim_detail as $key => $kirim_detail) {
+								?>
+									<tr>
+									<td><?=$kirim_detail['kode_item']?></td>
+									<td><?=$kirim_detail['nama_item']?></td>
+									<td><?=$kirim_detail['jumlah_kirim']?></td>
+									<td><?=$kirim_detail['nama_satuan']?></td>
+									</tr>
+								<?php
+									$idy++;
+
+									}	
+								?>		
+									</tbody>
+									</table>
+						<?php
+									$idx++;
+								}
+							?>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<?=form_close()?>
+	</div>
+</div>	
+<div class="modal fade bs-modal-lg" id="modal_biaya" role="basic" aria-hidden="true">
+   <div class="page-loading page-loading-boxed">
+       <span>
+           &nbsp;&nbsp;Loading...
+       </span>
+   </div>
+   <div class="modal-dialog modal-lg">
+       <div class="modal-content">
+
+       </div>
+   </div>
+</div>
+<div class="modal fade bs-modal-lg" id="popup_modal_jumlah" role="basic" aria-hidden="true">
+   <div class="page-loading page-loading-boxed">
+       <span>
+           &nbsp;&nbsp;Loading...
+       </span>
+   </div>
+   <div class="modal-dialog modal-lg">
+       <div class="modal-content">
+
+       </div>
+   </div>
+</div>

@@ -1,0 +1,81 @@
+mb.app.stockOpname = mb.app.stockOpname || {};
+mb.app.stockOpname.searchUser = mb.app.stockOpname.searchUser || {};
+
+// mb.app.stockOpname.searchUser namespace
+(function(o){
+	//simpan #table_user sebagai jquery object
+	var $tableUser = $('#table_user');
+	var baseAppUrl = '';
+
+	// setup list user datatable
+	// handle checkbox activate/deactivate password
+	// handle reset password action
+	var handleDataTable = function(){
+		//setup datatable
+		$tableUser.dataTable({
+			'bProcessing'              : true,
+			'bServerSide'              : true,
+			'sServerMethod'            : 'POST',
+			'oLanguage'                : mb.DTLanguage(),
+			'sAjaxSource'              : baseAppUrl + 'listingUser',
+			'iDisplayLength'           : 10,
+			'aLengthMenu'              : [[5, 10, 25, 50, 100], [5, 10, 25, 50, 100]],
+			'aaSorting'                : [[0, 'asc']],
+			'aoColumns'                : [
+				{ 'bVisible' : false, 'bSearchable': false, 'bSortable': false },
+				{ 'bVisible' : true, 'bSearchable': true, 'bSortable': true },
+				{ 'bVisible' : true, 'bSearchable': true, 'bSortable': true },
+				{ 'bVisible' : true, 'bSearchable': false, 'bSortable': false }
+        		]
+			});//.fnSetFilteringDelay(500);
+
+		$tableUser.on('draw.dt', function (){
+			// action for select stockOpname.searchUser
+			$('a[name="select[]"]', this).click(function(){
+					var $anchor = $(this),
+					      id    = $anchor.data('user_id');
+
+					handleSelectRow(id);
+			});	
+			
+			
+		} );
+	};
+
+	var handleSelectRow = function(id){
+
+		$.ajax({
+			url		: baseAppUrl +'saveUserData', 
+			type	: 'POST', 
+			data	: {user_id: id}, 
+			success	: function(data, textStatus, jqXhr){
+				//Set all contact data to opener window
+				var jsondata = $.parseJSON(data);
+				$("#user_id", opener.document).val(jsondata.id);
+				$("#user_name", opener.document).val(jsondata.fullname);
+					
+				window.close();
+			}, 
+			async 	: false
+		});
+		
+	
+	};
+
+	
+
+   	
+   	// mp.app.stockOpname.searchUser properties
+	o.init = function(){
+		baseAppUrl = mb.baseUrl() + 'warehouse/rawGoods/stockOpname/';
+		handleDataTable();
+		//another init
+		//another init
+	};
+	// o.resetPassword = resetPassword;
+
+}(mb.app.stockOpname.searchUser));
+
+$(function(){    
+	mb.app.stockOpname.searchUser.init();
+});
